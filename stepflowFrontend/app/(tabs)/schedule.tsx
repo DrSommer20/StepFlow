@@ -1,41 +1,49 @@
-import { Text, View, StyleSheet, Button } from 'react-native';
-import * as Calendar from 'expo-calendar';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Text, View, StyleSheet, FlatList } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function ScheduleScreen() {
-  const [calendarId, setCalendarId] = useState(null);
+export default function EventScreen() {
+  const [events, setEvents] = useState([]);
+  const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    (async () => {
-      const { status } = await Calendar.requestCalendarPermissionsAsync();
-      if (status === 'granted') {
-        const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
-        const defaultCalendar = calendars.find(cal => cal.source.name === 'Default');
-        setCalendarId(defaultCalendar.id);
-      }
-    })();
+    const fetchToken = async () => {
+      const storedToken = await AsyncStorage.getItem('token');
+      setToken(storedToken);
+    };
+    fetchToken();
   }, []);
 
-  const createEvent = async () => {
-    if (calendarId) {
-      const eventId = await Calendar.createEventAsync(calendarId, {
-        title: 'Dance Training',
-        startDate: new Date(),
-        endDate: new Date(new Date().getTime() + 2 * 60 * 60 * 1000),
-        timeZone: 'GMT',
-        location: 'Dance Studio',
-      });
-      alert(`Event created with ID: ${eventId}`);
+  useEffect(() => {
+    if (token) {
+      fetch('http://192.168.2.100:8080/api/events', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+        .then(response => response.json())
+        .then(data => setEvents(data.events))
+        .catch(error => console.error('Error fetching events:', error));
     }
-  };
+  }, [token]);
+
+  const renderItem = ({ item }: { item: { title: string; description: string; date: string; location: string; eventId: number } }) => (
+    <View style={styles.eventContainer}>
+      <Text style={styles.eventTitle}>{item.title}</Text>
+      <Text style={styles.eventDescription}>{item.description}</Text>
+      <Text style={styles.eventDate}>{item.date}</Text>
+      <Text style={styles.eventLocation}>{item.location}</Text>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Schedule screen</Text>
-      <Text style={styles.description}>
-        Manage your dance training schedule here.
-      </Text>
-      <Button title="Create Event" onPress={createEvent} />
+      <Text style={styles.text}>Carpool screen</Text>
+      <FlatList
+        data={events}
+        renderItem={renderItem}
+        keyExtractor={item => item.eventId.toString()}
+      />
     </View>
   );
 }
@@ -50,9 +58,27 @@ const styles = StyleSheet.create({
   text: {
     color: '#fff',
   },
-  description: {
+  eventContainer: {
+    backgroundColor: '#333',
+    padding: 20,
+    marginVertical: 10,
+    borderRadius: 10,
+  },
+  eventTitle: {
     color: '#fff',
-    marginTop: 20,
-    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  eventDescription: {
+    color: '#fff',
+    marginTop: 5,
+  },
+  eventDate: {
+    color: '#fff',
+    marginTop: 5,
+  },
+  eventLocation: {
+    color: '#fff',
+    marginTop: 5,
   },
 });
