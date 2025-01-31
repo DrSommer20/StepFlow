@@ -9,15 +9,15 @@ public interface PenaltyService {
 
     List<Penalty> getAllPenalties();
 
-    Optional<Penalty> getPenaltyById(Integer id);
+    Optional<Penalty> getPenaltyById(int id);
 
-    List<Penalty> getPenaltiesByUserId(Long userId);
+    List<Penalty> getPenaltiesByUserId(int userId);
 
     List<Penalty> getPenaltiesByPaidStatus(Boolean paid);
 
     Penalty createPenalty(Penalty penalty);
 
-    Penalty updatePenalty(Integer id, Penalty penaltyDetails);
+    Penalty updatePenalty(int id, Penalty penaltyDetails);
 
-    void deletePenalty(Integer id);
+    void deletePenalty(int id);
 }

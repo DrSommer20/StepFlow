@@ -9,7 +9,6 @@ public interface AuthService {
      * 
      * @param token the token
      * @return the email
-     * @deprecated Use {@link #extractEmail(String)} instead
      */
     public String extractEmail(String token);
 
@@ -18,6 +17,7 @@ public interface AuthService {
      * 
      * @param token the token
      * @return the username
+     * @deprecated Use {@link #extractEmail(String)} instead
      */
     public String extractUsername(String token);
 

@@ -21,7 +21,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Optional<Event> getEventById(Integer id) {
+    public Optional<Event> getEventById(int id) {
         return eventRepository.findById(id);
     }
 
@@ -41,8 +41,8 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<Event> getEventsByCreatedBy(Long userId) {
-        return eventRepository.findByCreatedBy(userId);
+    public List<Event> getEventsByCreatedBy(int userId) {
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
@@ -51,7 +51,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Event updateEvent(Integer id, Event eventDetails) {
+    public Event updateEvent(int id, Event eventDetails) {
         Optional<Event> event = eventRepository.findById(id);
         if (event.isPresent()) {
             Event existingEvent = event.get();
@@ -67,7 +67,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void deleteEvent(Integer id) {
+    public void deleteEvent(int id) {
         eventRepository.deleteById(id);
     }
 }

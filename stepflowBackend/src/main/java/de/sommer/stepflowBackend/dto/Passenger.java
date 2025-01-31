@@ -10,17 +10,16 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import de.sommer.stepflowBackend.models.User;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-    "email",
-    "password"
+    "userId"
 })
-public class LoginRequest {
+public class Passenger {
 
-    @JsonProperty("email")
-    private String email;
-    @JsonProperty("password")
-    private String password;
+    @JsonProperty("userId")
+    private Integer userId;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new LinkedHashMap<String, Object>();
 
@@ -28,33 +27,26 @@ public class LoginRequest {
      * No args constructor for use in serialization
      * 
      */
-    public LoginRequest() {
+    public Passenger() {
     }
 
-    public LoginRequest(String email, String password) {
+    public Passenger(Integer userId) {
         super();
-        this.email = email;
-        this.password = password;
+        this.userId = userId;
     }
 
-    @JsonProperty("email")
-    public String getEmail() {
-        return email;
+    public Passenger(User user) {
+        this.userId = user.getId();
     }
 
-    @JsonProperty("email")
-    public void setEmail(String email) {
-        this.email = email;
+    @JsonProperty("userId")
+    public Integer getUserId() {
+        return userId;
     }
 
-    @JsonProperty("password")
-    public String getPassword() {
-        return password;
-    }
-
-    @JsonProperty("password")
-    public void setPassword(String password) {
-        this.password = password;
+    @JsonProperty("userId")
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
     @JsonAnyGetter

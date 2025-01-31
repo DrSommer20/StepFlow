@@ -8,13 +8,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface CarpoolRepository extends JpaRepository<Carpool, Long> {
-
-    List<Carpool> findByEventId(Long eventId);
-
-    List<Carpool> findByDriverId(Long driverId);
-
-    Optional<Carpool> findByIdAndDriverId(Long carpoolId, Long driverId);
-
-    List<Carpool> findBySeatsAvailableGreaterThanEqual(Long seatsAvailable);
+public interface CarpoolRepository extends JpaRepository<Carpool, Integer> {
+    List<Carpool> findByEvent_EventId(int eventId);
+    List<Carpool> findByDriverId(int driverId);
+    Optional<Carpool> findByCarpoolIdAndDriverId(int carpoolId, int driverId); // Updated method name
+    List<Carpool> findBySeatsAvailableGreaterThanEqual(int seatsAvailable);
 }

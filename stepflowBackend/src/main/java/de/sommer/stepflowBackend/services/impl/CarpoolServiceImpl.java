@@ -21,17 +21,17 @@ public class CarpoolServiceImpl implements CarpoolService {
     }
 
     @Override
-    public Optional<Carpool> getCarpoolById(Long id) {
+    public Optional<Carpool> getCarpoolById(int id) {
         return carpoolRepository.findById(id);
     }
 
     @Override
-    public List<Carpool> getCarpoolsByEventId(Long eventId) {
-        return carpoolRepository.findByEventId(eventId);
+    public List<Carpool> getCarpoolsByEventId(int eventId) {
+        return carpoolRepository.findByEvent_EventId(eventId);
     }
 
     @Override
-    public List<Carpool> getCarpoolsByDriverId(Long driverId) {
+    public List<Carpool> getCarpoolsByDriverId(int driverId) {
         return carpoolRepository.findByDriverId(driverId);
     }
 
@@ -41,7 +41,7 @@ public class CarpoolServiceImpl implements CarpoolService {
     }
 
     @Override
-    public Carpool updateCarpool(Long id, Carpool carpoolDetails) {
+    public Carpool updateCarpool(int id, Carpool carpoolDetails) {
         Optional<Carpool> carpool = carpoolRepository.findById(id);
         if (carpool.isPresent()) {
             Carpool existingCarpool = carpool.get();
@@ -51,12 +51,12 @@ public class CarpoolServiceImpl implements CarpoolService {
             existingCarpool.setPassengers(carpoolDetails.getPassengers());
             return carpoolRepository.save(existingCarpool);
         } else {
-            throw new RuntimeException("Carpool not found with id " + id);
+            return null;
         }
     }
 
     @Override
-    public void deleteCarpool(Long id) {
+    public void deleteCarpool(int id) {
         carpoolRepository.deleteById(id);
     }
 }

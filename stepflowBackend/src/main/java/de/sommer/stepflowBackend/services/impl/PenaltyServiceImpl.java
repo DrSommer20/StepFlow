@@ -21,12 +21,12 @@ public class PenaltyServiceImpl implements PenaltyService {
     }
 
     @Override
-    public Optional<Penalty> getPenaltyById(Integer id) {
+    public Optional<Penalty> getPenaltyById(int id) {
         return penaltyRepository.findById(id);
     }
 
     @Override
-    public List<Penalty> getPenaltiesByUserId(Long userId) {
+    public List<Penalty> getPenaltiesByUserId(int userId) {
         return penaltyRepository.findByUserId(userId);
     }
 
@@ -41,7 +41,7 @@ public class PenaltyServiceImpl implements PenaltyService {
     }
 
     @Override
-    public Penalty updatePenalty(Integer id, Penalty penaltyDetails) {
+    public Penalty updatePenalty(int id, Penalty penaltyDetails) {
         Optional<Penalty> penalty = penaltyRepository.findById(id);
         if (penalty.isPresent()) {
             Penalty existingPenalty = penalty.get();
@@ -56,7 +56,7 @@ public class PenaltyServiceImpl implements PenaltyService {
     }
 
     @Override
-    public void deletePenalty(Integer id) {
+    public void deletePenalty(int id) {
         penaltyRepository.deleteById(id);
     }
 }

@@ -1,7 +1,9 @@
 
 package de.sommer.stepflowBackend.dto;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
@@ -10,17 +12,16 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import de.sommer.stepflowBackend.models.Event;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-    "email",
-    "password"
+    "events"
 })
-public class LoginRequest {
+public class EventListDTO {
 
-    @JsonProperty("email")
-    private String email;
-    @JsonProperty("password")
-    private String password;
+    @JsonProperty("events")
+    private List<EventDTO> events;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new LinkedHashMap<String, Object>();
 
@@ -28,33 +29,29 @@ public class LoginRequest {
      * No args constructor for use in serialization
      * 
      */
-    public LoginRequest() {
+    public EventListDTO() {
     }
 
-    public LoginRequest(String email, String password) {
+    public EventListDTO(List<EventDTO> events) {
         super();
-        this.email = email;
-        this.password = password;
+        this.events = events;
     }
 
-    @JsonProperty("email")
-    public String getEmail() {
-        return email;
+    public EventListDTO(List<Event> allEvents, boolean fromEvents) {
+        this.events = new ArrayList<>();
+        for (Event event : allEvents) {
+            this.events.add(new EventDTO(event));
+        }
     }
 
-    @JsonProperty("email")
-    public void setEmail(String email) {
-        this.email = email;
+    @JsonProperty("events")
+    public List<EventDTO> getPenalties() {
+        return events;
     }
 
-    @JsonProperty("password")
-    public String getPassword() {
-        return password;
-    }
-
-    @JsonProperty("password")
-    public void setPassword(String password) {
-        this.password = password;
+    @JsonProperty("events")
+    public void setPenalties(List<EventDTO> events) {
+        this.events = events;
     }
 
     @JsonAnyGetter

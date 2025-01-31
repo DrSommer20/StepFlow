@@ -10,20 +10,16 @@ public interface UserService extends UserDetailsService {
 
     List<User> getAllUsers();
 
-    Optional<User> getUserById(Long id);
-
-    Optional<User> getUserByUsername(String username);
+    Optional<User> getUserById(int id);
 
     Optional<User> getUserByEmail(String email);
 
     User createUser(User user);
+    
+    boolean existsByEmail(String email);
 
-    public boolean existsByUsername(String username);
+    User updateUser(int id, User userDetails);
 
-    public boolean existsByEmail(String email);
-
-    User updateUser(Long id, User userDetails);
-
-    void deleteUser(Long id);
+    void deleteUser(int id);
 
 }

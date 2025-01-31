@@ -27,12 +27,8 @@ public class AuthServiceImpl implements AuthService {
 
     private final long jwtExpiration = 1000 * 60 * 60 * 2;
 
-    public AuthServiceImpl() {
-        System.out.println("########################" + secretKey);
-    }
-
     public String extractEmail(String token) {
-        throw new UnsupportedOperationException("Unimplemented method 'extractEmail'");
+        return extractClaim(token, Claims::getSubject);
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -58,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
-                .setSubject(userDetails.getUsername())
+                .setSubject(userDetails.getEmail())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
@@ -96,7 +92,7 @@ public class AuthServiceImpl implements AuthService {
     public String generateVerificationToken(User user) {
         return Jwts
                 .builder()
-                .setSubject(user.getUsername())
+                .setSubject(user.getEmail())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
@@ -105,7 +101,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+        throw new UnsupportedOperationException("Use extractEmail instead");
     }
 
 }

@@ -9,15 +9,15 @@ public interface CarpoolService {
 
     List<Carpool> getAllCarpools();
 
-    Optional<Carpool> getCarpoolById(Long id);
+    Optional<Carpool> getCarpoolById(int id);
 
-    List<Carpool> getCarpoolsByEventId(Long eventId);
+    List<Carpool> getCarpoolsByEventId(int eventId);
 
-    List<Carpool> getCarpoolsByDriverId(Long driverId);
+    List<Carpool> getCarpoolsByDriverId(int driverId);
 
     Carpool createCarpool(Carpool carpool);
 
-    Carpool updateCarpool(Long id, Carpool carpoolDetails);
+    Carpool updateCarpool(int id, Carpool carpoolDetails);
 
-    void deleteCarpool(Long id);
+    void deleteCarpool(int id);
 }

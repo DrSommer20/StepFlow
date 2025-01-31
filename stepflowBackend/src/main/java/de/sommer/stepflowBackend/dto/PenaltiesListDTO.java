@@ -2,6 +2,7 @@
 package de.sommer.stepflowBackend.dto;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
@@ -12,15 +13,12 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-    "email",
-    "password"
+    "penalties"
 })
-public class LoginRequest {
+public class PenaltiesListDTO {
 
-    @JsonProperty("email")
-    private String email;
-    @JsonProperty("password")
-    private String password;
+    @JsonProperty("penalties")
+    private List<PenaltyDTO> penalties;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new LinkedHashMap<String, Object>();
 
@@ -28,33 +26,22 @@ public class LoginRequest {
      * No args constructor for use in serialization
      * 
      */
-    public LoginRequest() {
+    public PenaltiesListDTO() {
     }
 
-    public LoginRequest(String email, String password) {
+    public PenaltiesListDTO(List<PenaltyDTO> penalties) {
         super();
-        this.email = email;
-        this.password = password;
+        this.penalties = penalties;
     }
 
-    @JsonProperty("email")
-    public String getEmail() {
-        return email;
+    @JsonProperty("penalties")
+    public List<PenaltyDTO> getPenalties() {
+        return penalties;
     }
 
-    @JsonProperty("email")
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    @JsonProperty("password")
-    public String getPassword() {
-        return password;
-    }
-
-    @JsonProperty("password")
-    public void setPassword(String password) {
-        this.password = password;
+    @JsonProperty("penalties")
+    public void setPenalties(List<PenaltyDTO> penalties) {
+        this.penalties = penalties;
     }
 
     @JsonAnyGetter
@@ -66,5 +53,4 @@ public class LoginRequest {
     public void setAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
     }
-
 }

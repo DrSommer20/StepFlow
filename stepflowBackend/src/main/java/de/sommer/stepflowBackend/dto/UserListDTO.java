@@ -1,7 +1,9 @@
 
 package de.sommer.stepflowBackend.dto;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
@@ -10,17 +12,16 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import de.sommer.stepflowBackend.models.User;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-    "email",
-    "password"
+    "users"
 })
-public class LoginRequest {
+public class UserListDTO {
 
-    @JsonProperty("email")
-    private String email;
-    @JsonProperty("password")
-    private String password;
+    @JsonProperty("users")
+    private List<UserDTO> users;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new LinkedHashMap<String, Object>();
 
@@ -28,33 +29,28 @@ public class LoginRequest {
      * No args constructor for use in serialization
      * 
      */
-    public LoginRequest() {
+    public UserListDTO() {
     }
 
-    public LoginRequest(String email, String password) {
+    public UserListDTO(List<UserDTO> users) {
         super();
-        this.email = email;
-        this.password = password;
+        this.users = users;
     }
 
-    @JsonProperty("email")
-    public String getEmail() {
-        return email;
+    public UserListDTO(List<User> allUsers, boolean fromUsers) {
+        for (User user : allUsers) {
+            this.users.add(new UserDTO(user));
+        }
     }
 
-    @JsonProperty("email")
-    public void setEmail(String email) {
-        this.email = email;
+    @JsonProperty("users")
+    public List<UserDTO> getUsers() {
+        return users;
     }
 
-    @JsonProperty("password")
-    public String getPassword() {
-        return password;
-    }
-
-    @JsonProperty("password")
-    public void setPassword(String password) {
-        this.password = password;
+    @JsonProperty("users")
+    public void setUsers(List<UserDTO> users) {
+        this.users = users;
     }
 
     @JsonAnyGetter
@@ -65,6 +61,16 @@ public class LoginRequest {
     @JsonAnySetter
     public void setAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
+    }
+
+    public static UserListDTO onlyName(List<User> allUsers) {
+        UserListDTO userListDTO = new UserListDTO();
+        List<UserDTO> users = new ArrayList<>();
+        for (User user : allUsers) {
+            users.add(UserDTO.onlyName(user));
+        }
+        userListDTO.setUsers(users);
+        return userListDTO;
     }
 
 }

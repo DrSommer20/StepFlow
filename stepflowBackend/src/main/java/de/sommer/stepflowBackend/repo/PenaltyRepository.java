@@ -9,12 +9,8 @@ import java.util.Optional;
 
 @Repository
 public interface PenaltyRepository extends JpaRepository<Penalty, Integer> {
-
-    List<Penalty> findByUserId(Long userId);
-
-    Optional<Penalty> findByIdAndUserId(Integer penaltyId, Long userId);
-
+    List<Penalty> findByUserId(int userId);
+    Optional<Penalty> findByPenaltyIdAndUserId(Integer penaltyId, int userId);
     List<Penalty> findByPaid(Boolean paid);
-
-    List<Penalty> findByUserIdAndPaid(Long userId, Boolean paid);
+    List<Penalty> findByUserIdAndPaid(int userId, Boolean paid);
 }

@@ -20,7 +20,7 @@ public class Carpool {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "carpool_id", nullable = false)
-    private Long carpoolId;
+    private int carpoolId;
 
     @ManyToOne
     @JoinColumn(name = "event_id", referencedColumnName = "event_id", nullable = false)
@@ -31,7 +31,7 @@ public class Carpool {
     private User driver;
 
     @Column(name = "seats_available")
-    private Long seatsAvailable;
+    private int seatsAvailable;
 
     @ManyToMany
     @JoinTable(
@@ -43,11 +43,11 @@ public class Carpool {
 
     // Getters and Setters
 
-    public Long getCarpoolId() {
+    public int getCarpoolId() {
         return carpoolId;
     }
 
-    public void setCarpoolId(Long carpoolId) {
+    public void setCarpoolId(int carpoolId) {
         this.carpoolId = carpoolId;
     }
 
@@ -67,11 +67,11 @@ public class Carpool {
         this.driver = driver;
     }
 
-    public Long getSeatsAvailable() {
+    public int getSeatsAvailable() {
         return seatsAvailable;
     }
 
-    public void setSeatsAvailable(Long seatsAvailable) {
+    public void setSeatsAvailable(int seatsAvailable) {
         this.seatsAvailable = seatsAvailable;
     }
 
@@ -81,5 +81,13 @@ public class Carpool {
 
     public void setPassengers(Set<User> passengers) {
         this.passengers = passengers;
+    }
+
+    public void addPassenger(User passenger) {
+        this.passengers.add(passenger);
+    }
+
+    public void removePassenger(User passenger) {
+        this.passengers.remove(passenger);
     }
 }

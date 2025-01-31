@@ -41,8 +41,8 @@ public class AuthFilter implements Filter {
         authToken = authToken != null ? authToken.replace("Bearer ", "") : null;
 
         if (authToken != null && !authService.isTokenExpired(authToken)) {
-            String username = authService.extractUsername(authToken);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            String email = authService.extractEmail(authToken);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
             chain.doFilter(request, response);

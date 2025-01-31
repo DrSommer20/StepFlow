@@ -9,7 +9,7 @@ public interface EventService {
 
     List<Event> getAllEvents();
 
-    Optional<Event> getEventById(Integer id);
+    Optional<Event> getEventById(int id);
 
     List<Event> getEventsByTitle(String title);
 
@@ -17,11 +17,11 @@ public interface EventService {
 
     List<Event> getEventsByDate(java.util.Date date);
 
-    List<Event> getEventsByCreatedBy(Long userId);
+    List<Event> getEventsByCreatedBy(int userId);
 
     Event createEvent(Event event);
 
-    Event updateEvent(Integer id, Event eventDetails);
+    Event updateEvent(int id, Event eventDetails);
 
-    void deleteEvent(Integer id);
+    void deleteEvent(int id);
 }

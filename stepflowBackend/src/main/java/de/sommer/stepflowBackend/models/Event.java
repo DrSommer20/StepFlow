@@ -1,7 +1,10 @@
 package de.sommer.stepflowBackend.models;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import de.sommer.stepflowBackend.dto.EventDTO;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,7 +19,7 @@ import jakarta.persistence.Table;
 public class Event {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "event_seq")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "event_id", nullable = false)
     private Integer eventId;
 
@@ -33,10 +36,21 @@ public class Event {
     private String location;
 
     @ManyToOne
-    @JoinColumn(name = "created_by", referencedColumnName = "user_id")
+    @JoinColumn(name = "created_by", referencedColumnName = "user_id", nullable = false)
     private User createdBy;
 
     // Getters and Setters
+
+    public Event() {
+    }
+
+    public Event(EventDTO event, User user) throws ParseException {
+        this.title = event.getTitle();
+        this.description = event.getDescription();
+        this.date = new SimpleDateFormat("yyyy-MM-dd").parse(event.getDate());
+        this.location = event.getLocation();
+        this.createdBy = user;
+    }
 
     public Integer getEventId() {
         return eventId;

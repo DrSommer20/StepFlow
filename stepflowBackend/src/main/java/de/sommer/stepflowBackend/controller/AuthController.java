@@ -32,7 +32,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
-        Optional<User> userOptional = userService.getUserByUsername(loginRequest.getUsername());
+        Optional<User> userOptional = userService.getUserByEmail(loginRequest.getEmail());
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
@@ -51,10 +51,6 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
-        if (userService.existsByUsername(user.getUsername())) {
-            return ResponseEntity.badRequest().body("Username is already taken");
-        }
-
         if (userService.existsByEmail(user.getEmail())) {
             return ResponseEntity.badRequest().body("Email is already in use");
         }

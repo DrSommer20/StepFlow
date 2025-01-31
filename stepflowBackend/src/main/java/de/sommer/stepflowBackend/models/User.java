@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import de.sommer.stepflowBackend.dto.UserDTO;
 import jakarta.persistence.Column;
 
 @Entity
@@ -14,10 +15,13 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private Long user_id;
+    private int user_id;
 
-    @Column(name = "username", unique = true, nullable = false)
-    private String username;
+    @Column(name = "name", nullable = false)
+    private String name;
+
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
 
     @Column(name = "email", unique = true, nullable = false)
     private String email;
@@ -28,32 +32,51 @@ public class User {
     @Column(name = "role", nullable = false)
     private String role;
 
+    @Column(name = "active", nullable = false)
+    private boolean active = true;
+
     // Constructor
     public User() {
     }
 
-    public User(String username, String email, String role, String password) {
-        this.username = username;
+    public User(String name, String email, String role, String password) {
+        this.name = name;
         this.email = email;
         this.role = role;
         this.password = password;
     }
 
+    public User(UserDTO userDTO){
+        this.name = userDTO.getName();
+        this.email = userDTO.getEmail();
+        this.role = userDTO.getRole();
+        this.password = userDTO.getPassword();
+        this.active = userDTO.getActive();
+    }
+
     // Getters and Setters
-    public Long getId() {
+    public int getId() {
         return user_id;
     }
 
-    public void setId(Long id) {
+    public void setId(int id) {
         this.user_id = id;
     }
 
-    public String getUsername() {
-        return username;
+    public String getName() {
+        return name;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
     public String getEmail() {
@@ -79,4 +102,13 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
 }
