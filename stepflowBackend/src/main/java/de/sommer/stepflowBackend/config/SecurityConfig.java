@@ -33,7 +33,7 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
             
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/api/auth/login", "/api/auth/register", "/public/**").permitAll()
+                .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/validate", "/public/**").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterAfter(customAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)

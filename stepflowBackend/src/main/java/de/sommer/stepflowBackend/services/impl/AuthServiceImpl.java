@@ -104,4 +104,18 @@ public class AuthServiceImpl implements AuthService {
         throw new UnsupportedOperationException("Use extractEmail instead");
     }
 
+    @Override
+    public boolean validateToken(String replace) {
+        try {
+            Jwts
+                    .parserBuilder()
+                    .setSigningKey(getSignInKey())
+                    .build()
+                    .parseClaimsJws(replace);
+            return true;
+        } catch (JwtException e) {
+            return false;
+        }
+    }
+
 }

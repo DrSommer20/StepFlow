@@ -1,0 +1,17 @@
+import 'package:flutter/material.dart';
+
+class CarpoolScreen extends StatelessWidget {
+  const CarpoolScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Carpool Screen'),
+      ),
+      body: Center(
+        child: Text('Welcome to the Carpool Screen!'),
+      ),
+    );
+  }
+}

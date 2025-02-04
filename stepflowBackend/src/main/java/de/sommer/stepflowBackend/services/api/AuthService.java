@@ -45,4 +45,12 @@ public interface AuthService {
      */
     public String generateToken(User userDetails);
 
+    /**
+     * Validates the token
+     * 
+     * @param replace the token
+     * @return true if the token is valid, false otherwise
+     */
+    public boolean validateToken(String replace);
+
 }
