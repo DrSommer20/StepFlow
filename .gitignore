@@ -18,6 +18,9 @@ expo-env.d.ts
 *.key
 *.mobileprovision
 
+stepflowBackend/src/main/resources/.env 
+stepflowBackend/src/main/resources/application.properties
+
 # Metro
 .metro-health-check*
 
