@@ -92,7 +92,18 @@ class LoginScreen extends StatelessWidget {
                   child: Text('Login'),
                 ),
                 SizedBox(height: 16.0),
-                //... (Forgot Password and Register buttons)
+                TextButton(
+                  onPressed: () {
+                    print('Register as Teamlead');
+                  },
+                  child: Text('Register'),
+                ),
+                TextButton(
+                  onPressed: () {
+                   print('Forgot Password?');
+                  },
+                  child: Text('Forgot Password?'),
+                ),
               ],
             ),
           ),
