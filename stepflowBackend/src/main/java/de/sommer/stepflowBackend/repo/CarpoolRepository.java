@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface CarpoolRepository extends JpaRepository<Carpool, Integer> {
-    List<Carpool> findByEvent_EventId(int eventId);
+    List<Carpool> findByEvent_Id(int eventId);
     List<Carpool> findByDriverId(int driverId);
     Optional<Carpool> findByCarpoolIdAndDriverId(int carpoolId, int driverId); // Updated method name
     List<Carpool> findBySeatsAvailableGreaterThanEqual(int seatsAvailable);

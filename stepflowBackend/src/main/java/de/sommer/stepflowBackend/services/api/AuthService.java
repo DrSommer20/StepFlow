@@ -53,4 +53,6 @@ public interface AuthService {
      */
     public boolean validateToken(String replace);
 
+    public String generateNewToken(String tokenWithoutBearer);
+
 }

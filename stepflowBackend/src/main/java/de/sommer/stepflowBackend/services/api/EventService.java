@@ -15,8 +15,6 @@ public interface EventService {
 
     List<Event> getEventsByLocation(String location);
 
-    List<Event> getEventsByDate(java.util.Date date);
-
     List<Event> getEventsByCreatedBy(int userId);
 
     Event createEvent(Event event);

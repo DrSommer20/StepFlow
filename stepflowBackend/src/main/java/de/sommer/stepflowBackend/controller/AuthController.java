@@ -80,4 +80,14 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Token is invalid");
         }
     }
+    @PostMapping("/refresh_token")
+    public ResponseEntity<?> refreshToken(@RequestHeader("Authorization") String token) {
+        String tokenWithoutBearer = token.replace("Bearer ", "");
+        if (authService.validateToken(tokenWithoutBearer)) {
+            String newToken = authService.generateNewToken(tokenWithoutBearer);
+            return ResponseEntity.ok(new MessageToken(newToken));
+        } else {
+            return ResponseEntity.badRequest().body("Token is invalid");
+        }
+    }
 }
