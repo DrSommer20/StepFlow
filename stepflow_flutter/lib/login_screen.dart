@@ -47,40 +47,52 @@ class LoginScreen extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () async {
                     try {
-                      final response = await sendLogin(_emailController.text, _passwordController.text);
-                      if (response.statusCode == 200) {
-                        final responseData = jsonDecode(response.body);
-                        final token = responseData['token'];
+                      final loginResponse = await sendLogin(
+                          _emailController.text, _passwordController.text);
+
+                      if (loginResponse.statusCode == 200) {
+                        final loginData = jsonDecode(loginResponse.body);
+                        final token = loginData['token']; // Access token
+                        print('Access token: $token');
+                        print(loginData);
+
                         final prefs = await SharedPreferences.getInstance();
-                        await prefs.setString('auth_token', token);
+                        await prefs.setString('token', token);
+
+                        if (!context.mounted) return;
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => MenuFrame()),
+                          MaterialPageRoute(
+                              builder: (context) => MenuFrame()),
+                        );
+                      } else if (loginResponse.statusCode == 401) {
+                        // Handle invalid credentials
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Invalid email or password.')),
                         );
                       } else {
-                        print('Login failed: ${response.body}');
+                        print('Login failed: ${loginResponse.body}');
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text(
+                                  'Login failed: ${loginResponse.statusCode}')),
+                        );
                       }
                     } catch (e) {
                       print('Error: $e');
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('An error occurred.')),
+                      );
                     }
                   },
                   child: Text('Login'),
                 ),
                 SizedBox(height: 16.0),
-                TextButton(
-                  onPressed: () {
-                    // Handle forgot password logic here
-                    print('Forgot Password pressed');
-                  },
-                  child: Text('Forgot Password?'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    // Navigate to the registration screen
-                    print('Register pressed');
-                  },
-                  child: Text("Don't have an account? Register"),
-                ),
+                //... (Forgot Password and Register buttons)
               ],
             ),
           ),
@@ -105,6 +117,39 @@ class LoginScreen extends StatelessWidget {
       return response;
     } catch (e) {
       throw Exception('Failed to connect to the server: $e');
+    }
+  }
+
+
+  Future<String?> refreshAccessToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      return null; // No refresh token available
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://192.168.0.136:8080/api/auth/refresh_token'), // Refresh endpoint
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'token': token}), // Send refresh token
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final newAccessToken = data['token'];
+        await prefs.setString('token', newAccessToken); // Store new access token
+        return newAccessToken;
+      } else {
+        print('Token refresh failed: ${response.statusCode}, ${response.body}');
+        // Handle refresh token failure (e.g., clear tokens and redirect to login)
+        await prefs.remove('token');
+        return null; // Indicate failure
+      }
+    } catch (e) {
+      print('Error during token refresh: $e');
+      return null;
     }
   }
 }
