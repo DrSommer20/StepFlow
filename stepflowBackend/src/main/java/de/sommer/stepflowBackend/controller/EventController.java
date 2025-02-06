@@ -1,6 +1,5 @@
 package de.sommer.stepflowBackend.controller;
 
-import java.text.ParseException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +40,7 @@ public class EventController {
     @PostMapping
     public ResponseEntity<?> createEvent(@RequestHeader("Authorization") String token, @RequestBody EventDTO event) {
         Optional<User> user = userService.getUserByEmail(authService.extractEmail(token.replace("Bearer ", "")));
-        if(event == null || event.getTitle() == null || event.getDate() == null || user.isEmpty()) {
+        if(event == null || event.getTitle() == null || event.getStart() == null || event.getEnd() == null || user.isEmpty()) {
             return ResponseEntity.badRequest().body("Invalid event. Information missing, please provide title, date and User");
         }
         Event newEvent;
@@ -76,12 +75,7 @@ public class EventController {
         if(existingEvent.isEmpty() || user.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        Event updatedEvent;
-        try {
-            updatedEvent = eventService.updateEvent(id, new Event(event, user.get()));
-        } catch (ParseException e) {
-            return ResponseEntity.badRequest().body("Invalid date format. Use dd-MM-yyyy");
-        }
+        Event updatedEvent = eventService.updateEvent(id, new Event(event, user.get()));
         return ResponseEntity.ok(new EventDTO(updatedEvent));
     }
 

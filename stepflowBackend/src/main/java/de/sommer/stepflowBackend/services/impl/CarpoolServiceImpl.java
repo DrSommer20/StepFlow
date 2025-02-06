@@ -27,7 +27,7 @@ public class CarpoolServiceImpl implements CarpoolService {
 
     @Override
     public List<Carpool> getCarpoolsByEventId(int eventId) {
-        return carpoolRepository.findByEvent_EventId(eventId);
+        return carpoolRepository.findByEvent_Id(eventId);
     }
 
     @Override

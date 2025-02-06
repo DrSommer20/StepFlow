@@ -35,10 +35,6 @@ public class EventServiceImpl implements EventService {
         return eventRepository.findByLocationContaining(location);
     }
 
-    @Override
-    public List<Event> getEventsByDate(java.util.Date date) {
-        return eventRepository.findByDate(date);
-    }
 
     @Override
     public List<Event> getEventsByCreatedBy(int userId) {
@@ -57,9 +53,13 @@ public class EventServiceImpl implements EventService {
             Event existingEvent = event.get();
             existingEvent.setTitle(eventDetails.getTitle());
             existingEvent.setDescription(eventDetails.getDescription());
-            existingEvent.setDate(eventDetails.getDate());
+            existingEvent.setStart(eventDetails.getStart());
+            existingEvent.setEnd(eventDetails.getEnd());
             existingEvent.setLocation(eventDetails.getLocation());
-            existingEvent.setCreatedBy(eventDetails.getCreatedBy());
+            existingEvent.setAttendees(eventDetails.getAttendees());
+            existingEvent.setRecurrenceRule(eventDetails.getRecurrenceRule());
+            existingEvent.setRecurrent(eventDetails.isRecurrent());
+            existingEvent.setAllDay(eventDetails.isAllDay());
             return eventRepository.save(existingEvent);
         } else {
             throw new RuntimeException("Event not found with id " + id);

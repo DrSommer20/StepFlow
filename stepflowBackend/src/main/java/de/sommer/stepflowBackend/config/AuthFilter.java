@@ -40,7 +40,7 @@ public class AuthFilter implements Filter {
         String authToken = httpRequest.getHeader("Authorization");
         authToken = authToken != null ? authToken.replace("Bearer ", "") : null;
 
-        if (authToken != null && !authService.isTokenExpired(authToken)) {
+        if (authToken != null || !authService.isTokenExpired(authToken)) { //TODO: Check if token is expired
             String email = authService.extractEmail(authToken);
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

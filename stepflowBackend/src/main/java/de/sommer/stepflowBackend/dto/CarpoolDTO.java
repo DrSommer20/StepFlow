@@ -56,7 +56,7 @@ public class CarpoolDTO {
 
     public CarpoolDTO(Carpool carpool) {
         this.carpoolId = carpool.getCarpoolId();
-        this.eventId = carpool.getEvent().getEventId();
+        this.eventId = carpool.getEvent().getId();
         this.driver = carpool.getDriver().getId();
         this.seatsAvailable = carpool.getSeatsAvailable();
         this.passengers = carpool.getPassengers().stream().map(user -> new Passenger(user)).collect(Collectors.toList());

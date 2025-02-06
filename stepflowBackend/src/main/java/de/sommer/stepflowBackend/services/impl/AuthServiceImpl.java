@@ -25,7 +25,7 @@ public class AuthServiceImpl implements AuthService {
     private Dotenv dotenv = Dotenv.load();
     private String secretKey = dotenv.get("JWT_SECRET");
 
-    private final long jwtExpiration = 1000 * 60 * 60 * 2;
+    private final long jwtExpiration = 1000 * 60 * 60 * 7;
 
     public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -116,6 +116,12 @@ public class AuthServiceImpl implements AuthService {
         } catch (JwtException e) {
             return false;
         }
+    }
+
+    @Override
+    public String generateNewToken(String tokenWithoutBearer) {
+        Claims claims = extractAllClaims(tokenWithoutBearer);
+        return buildToken(claims, new User(), jwtExpiration);
     }
 
 }

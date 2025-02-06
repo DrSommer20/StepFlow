@@ -1,5 +1,6 @@
 package de.sommer.stepflowBackend.repo;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,7 +14,8 @@ import de.sommer.stepflowBackend.models.User;
 public interface EventRepository extends JpaRepository<Event, Integer> {
     List<Event> findByTitleContaining(String title);
     List<Event> findByLocationContaining(String location);
-    List<Event> findByDate(java.util.Date date);
+    List<Event> findByStart(Date start);
+    List<Event> findByEnd(Date end);
     List<Event> findByCreatedBy(User user);
-    Optional<Event> findByEventIdAndCreatedBy(int eventId, User user);
+    Optional<Event> findByIdAndCreatedBy(int eventId, User user);
 }

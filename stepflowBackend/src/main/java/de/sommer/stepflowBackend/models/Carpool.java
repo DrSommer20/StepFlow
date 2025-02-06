@@ -23,7 +23,7 @@ public class Carpool {
     private int carpoolId;
 
     @ManyToOne
-    @JoinColumn(name = "event_id", referencedColumnName = "event_id", nullable = false)
+    @JoinColumn(name = "event_id", referencedColumnName = "id", nullable = false)
     private Event event;
 
     @ManyToOne
