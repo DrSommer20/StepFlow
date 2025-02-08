@@ -5,14 +5,19 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import de.sommer.stepflowBackend.models.Team;
+import de.sommer.stepflowBackend.models.TeamMembership;
 import de.sommer.stepflowBackend.models.User;
 import de.sommer.stepflowBackend.repo.TeamRepository;
 import de.sommer.stepflowBackend.services.api.TeamService;
+import de.sommer.stepflowBackend.services.api.UserService;
 
 public class TeamServiceImpl implements TeamService{
 
     @Autowired
     TeamRepository teamRepository;
+
+    @Autowired 
+    UserService userService;
 
     @Override
     public Optional<Team> getTeam(int teamId) {
@@ -33,9 +38,7 @@ public class TeamServiceImpl implements TeamService{
             team.setTeamLogo(updatedTeam.getTeamLogo());
             team.setTeamColor(updatedTeam.getTeamColor());
             return teamRepository.save(team);
-        }.orElseThrow(() -> new RuntimeException("Team not found with id " + updatedTeam.getId()))
-            
-        )
+        }).orElseThrow(() -> new RuntimeException("Team not found with id " + updatedTeam.getId()));
         
     }
 
@@ -49,7 +52,9 @@ public class TeamServiceImpl implements TeamService{
         Optional<Team> teamOptional = getTeam(teamId);
         if(teamOptional.isPresent()){
             Team team = teamOptional.get();
-            team.
+            User user = userService.getUserById(userId).orElseThrow(() -> new RuntimeException("User not found with id " + userId));
+            team.getMemberships().add(new TeamMembership(user, team, "member"));
+            return teamRepository.save(team);
         }
         else{
             return null;
@@ -58,14 +63,26 @@ public class TeamServiceImpl implements TeamService{
 
     @Override
     public void removeUserFromTeam(int teamId, int userId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'removeUserFromTeam'");
+        Optional<Team> teamOptional = getTeam(teamId);
+        if (teamOptional.isPresent()) {
+            Team team = teamOptional.get();
+            team.getMemberships().removeIf(membership -> membership.getUser().getId() == userId);
+            teamRepository.save(team);
+        } else {
+            throw new RuntimeException("Team not found with id " + teamId);
+        }
     }
 
     @Override
     public Team updateUserRoleinTeam(int teamId, int userId, String role) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateUserRoleinTeam'");
+        Optional<Team> teamOptional = getTeam(teamId);
+        if (teamOptional.isPresent()) {
+            Team team = teamOptional.get();
+            team.getMemberships().stream().filter(membership -> membership.getUser().getId() == userId).findFirst().ifPresent(membership -> membership.setRole(role));
+            return teamRepository.save(team);
+        } else {
+            throw new RuntimeException("Team not found with id " + teamId);
+        }
     }
 
 

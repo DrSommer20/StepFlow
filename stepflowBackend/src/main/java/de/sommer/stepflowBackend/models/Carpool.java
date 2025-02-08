@@ -41,6 +41,11 @@ public class Carpool {
     )
     private Set<User> passengers;
 
+    @ManyToOne
+    @JoinColumn(name = "team_id", referencedColumnName = "id", nullable = false)
+    private Team team;
+
+
     // Getters and Setters
 
     public int getCarpoolId() {
@@ -89,5 +94,13 @@ public class Carpool {
 
     public void removePassenger(User passenger) {
         this.passengers.remove(passenger);
+    }
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
     }
 }
