@@ -64,108 +64,121 @@ public class Event {
     @JoinColumn(name = "created_by", referencedColumnName = "user_id", nullable = false)
     private User createdBy;
 
-    public Event(EventDTO event, User user) {
-        this.title = event.getTitle();
-        this.description = event.getDescription();
-        this.start = LocalDateTime.parse(event.getStart());
-        this.end = LocalDateTime.parse(event.getEnd());
-        this.location = event.getLocation();
-        this.color = event.getColor();
-        this.recurrent = Boolean.parseBoolean(event.getRecurrent());
-        this.recurrenceRule = event.getRecurrenceRule();
-        this.createdBy = user;
-        this.allDay = event.isAllDay();
-    }
-
-    public Event() {
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public LocalDateTime getStart() {
-        return start;
-    }
-
-    public void setStart(LocalDateTime start) {
-        this.start = start;
-    }
-
-    public LocalDateTime getEnd() {
-        return end;
-    }
-
-    public void setEnd(LocalDateTime end) {
-        this.end = end;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public List<User> getAttendees() {
-        return attendees;
-    }
-
-    public void setAttendees(List<User> attendees) {
-        this.attendees = attendees;
-    }
-
-    public String getColor() {
-        return color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
-
-    public boolean isRecurrent() {
-        return recurrent;
-    }
-
-    public void setRecurrent(boolean recurrent) {
-        this.recurrent = recurrent;
-    }
-
-    public String getRecurrenceRule() {
-        return recurrenceRule;
-    }
-
-    public void setRecurrenceRule(String recurrenceRule) {
-        this.recurrenceRule = recurrenceRule;
-    }
-
-    public boolean isAllDay() {
-        return allDay;
-    }
-
-    public void setAllDay(boolean allDay) {
-        this.allDay = allDay;
+    @ManyToOne
+    @JoinColumn(name = "team_id", referencedColumnName = "id", nullable = false)
+    private Team team;
+    
+        public Event(EventDTO event, User user) {
+            this.title = event.getTitle();
+            this.description = event.getDescription();
+            this.start = LocalDateTime.parse(event.getStart());
+            this.end = LocalDateTime.parse(event.getEnd());
+            this.location = event.getLocation();
+            this.color = event.getColor();
+            this.recurrent = Boolean.parseBoolean(event.getRecurrent());
+            this.recurrenceRule = event.getRecurrenceRule();
+            this.createdBy = user;
+            this.allDay = event.isAllDay();
+            this.team = event.getTeamId();
+        }
+    
+        public Event() {
+        }
+    
+        public int getId() {
+            return id;
+        }
+    
+        public void setId(int id) {
+            this.id = id;
+        }
+    
+        public String getTitle() {
+            return title;
+        }
+    
+        public void setTitle(String title) {
+            this.title = title;
+        }
+    
+        public String getDescription() {
+            return description;
+        }
+    
+        public void setDescription(String description) {
+            this.description = description;
+        }
+    
+        public LocalDateTime getStart() {
+            return start;
+        }
+    
+        public void setStart(LocalDateTime start) {
+            this.start = start;
+        }
+    
+        public LocalDateTime getEnd() {
+            return end;
+        }
+    
+        public void setEnd(LocalDateTime end) {
+            this.end = end;
+        }
+    
+        public String getLocation() {
+            return location;
+        }
+    
+        public void setLocation(String location) {
+            this.location = location;
+        }
+    
+        public List<User> getAttendees() {
+            return attendees;
+        }
+    
+        public void setAttendees(List<User> attendees) {
+            this.attendees = attendees;
+        }
+    
+        public String getColor() {
+            return color;
+        }
+    
+        public void setColor(String color) {
+            this.color = color;
+        }
+    
+        public boolean isRecurrent() {
+            return recurrent;
+        }
+    
+        public void setRecurrent(boolean recurrent) {
+            this.recurrent = recurrent;
+        }
+    
+        public String getRecurrenceRule() {
+            return recurrenceRule;
+        }
+    
+        public void setRecurrenceRule(String recurrenceRule) {
+            this.recurrenceRule = recurrenceRule;
+        }
+    
+        public boolean isAllDay() {
+            return allDay;
+        }
+    
+        public void setAllDay(boolean allDay) {
+            this.allDay = allDay;
+        }
+    
+        public Team getTeamId() {
+            return team;
+        }
+    
+        public void setTeamId(Team team){
+            this.team = team;
     }
 
     

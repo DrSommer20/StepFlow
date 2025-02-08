@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.MethodNotAllowedException;
 
 import de.sommer.stepflowBackend.dto.LoginRequest;
 import de.sommer.stepflowBackend.dto.MessageToken;
@@ -57,19 +58,8 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
-        if (userService.existsByEmail(registerRequest.getEmail())) {
-            return ResponseEntity.badRequest().body("Email is already in use");
-        }
-
-        User user = new User();
-        user.setName(registerRequest.getName());
-        user.setFirstName(registerRequest.getFirstName());
-        user.setEmail(registerRequest.getEmail());
-        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        user.setRole("user");
-        userService.createUser(user);
-
-        return ResponseEntity.ok("User registered successfully");
+            return null;
+        
     }
 
     @GetMapping("/validate")

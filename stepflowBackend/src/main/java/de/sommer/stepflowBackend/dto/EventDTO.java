@@ -52,6 +52,8 @@ private String recurrent;
 private String recurrenceRule;
 @JsonProperty("allDay")
 private boolean allDay;
+@JsonProperty("teamId")
+private int teamId;
 @JsonIgnore
 private Map<String, Object> additionalProperties = new LinkedHashMap<String, Object>();
 
@@ -62,7 +64,7 @@ private Map<String, Object> additionalProperties = new LinkedHashMap<String, Obj
 public EventDTO() {
 }
 
-public EventDTO(int id, String title, String description, String start, String end, String location, List<String> attendees, String color, String recurrent, String recurrenceRule, boolean allDay) {
+public EventDTO(int id, String title, String description, String start, String end, String location, List<String> attendees, String color, String recurrent, String recurrenceRule, boolean allDay, int teamId) {
 super();
 this.id = id;
 this.title = title;
@@ -75,6 +77,7 @@ this.color = color;
 this.recurrent = recurrent;
 this.recurrenceRule = recurrenceRule;
 this.allDay = allDay;
+this.teamId = teamId;
 }
 
 public EventDTO(Event event) {
@@ -93,6 +96,7 @@ for(User user : event.getAttendees()) {
 this.color = event.getColor();
 this.recurrent = Boolean.toString(event.isRecurrent());
 this.recurrenceRule = event.getRecurrenceRule();
+this.teamId = event.getTeamId();
 
 }
 
@@ -206,6 +210,15 @@ public void setAllDay(boolean allDay) {
 this.allDay = allDay;
 }
 
+@JsonProperty("teamId")
+public int getTeamId(){
+    return this.teamId;
+}
+
+@JsonProperty("teamId")
+public void setTeamId(int teamId){
+    this.teamId = teamId;
+}
 
 
 @JsonAnyGetter

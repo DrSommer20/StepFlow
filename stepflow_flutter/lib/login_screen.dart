@@ -100,7 +100,11 @@ class LoginScreen extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                   print('Forgot Password?');
+                   Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => MenuFrame()),
+                        );
                   },
                   child: Text('Forgot Password?'),
                 ),

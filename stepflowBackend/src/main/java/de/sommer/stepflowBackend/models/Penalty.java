@@ -14,7 +14,7 @@ import jakarta.persistence.Table;
 public class Penalty {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "penalty_seq")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "penalty_id", nullable = false)
     private Integer penaltyId;
 
@@ -30,6 +30,10 @@ public class Penalty {
 
     @Column(name = "paid", nullable = false)
     private Boolean paid = false;
+
+    @ManyToOne
+    @JoinColumn() //TODO: Join Teams
+    private Team team;
 
     // Getters and Setters
 

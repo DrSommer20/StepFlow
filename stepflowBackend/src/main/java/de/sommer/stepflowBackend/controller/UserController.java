@@ -65,8 +65,9 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable int id, @RequestBody User userDetails, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> updateUser(@PathVariable int id, @RequestBody User userDetails, @RequestHeader("Authorization") String token, @RequestHeader("Team") int teamId) {
         Optional<User> user = userService.getUserByEmail(authService.extractEmail(token.replace("Bearer ", "")));
+        
         if (user.isEmpty() || user.get().getId() != id && !user.get().getRole().equals("admin")) {
             return ResponseEntity.status(403).build();
         }

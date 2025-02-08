@@ -34,8 +34,6 @@ public class UserDTO {
     private String email;
     @JsonProperty("password")
     private String password;
-    @JsonProperty("role")
-    private String role;
     @JsonProperty("active")
     private Boolean active;
     @JsonIgnore
@@ -48,7 +46,7 @@ public class UserDTO {
     public UserDTO() {
     }
 
-    public UserDTO(Integer userId, String name, String firstName, String email, String password, String role, Boolean active) {
+    public UserDTO(Integer userId, String name, String firstName, String email, String password, Boolean active) {
         super();
         this.userId = userId;
         this.name = name;
@@ -64,7 +62,6 @@ public class UserDTO {
         this.firstName = user.getFirstName();
         this.email = user.getEmail();
         this.password = "";
-        this.role = user.getRole();
         this.active = user.isActive();
     }
 
@@ -118,16 +115,6 @@ public class UserDTO {
         this.password = password;
     }
 
-    @JsonProperty("role")
-    public String getRole() {
-        return role;
-    }
-
-    @JsonProperty("role")
-    public void setRole(String role) {
-        this.role = role;
-    }
-
     @JsonProperty("active")
     public Boolean getActive() {
         return active;
@@ -149,7 +136,7 @@ public class UserDTO {
     }
 
     public static UserDTO onlyName(User user) {
-        return new UserDTO(user.getId(), user.getName(), user.getFirstName(), null, null, null, null);
+        return new UserDTO(user.getId(), user.getName(), user.getFirstName(), null, null, null);
     }
 
 }
