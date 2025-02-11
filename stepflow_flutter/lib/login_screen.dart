@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'menu_screens/menu_frame.dart';
+import 'registration/register_screen.dart'; // Import the new register screen
 
 class LoginScreen extends StatelessWidget {
   final TextEditingController _emailController = TextEditingController();
@@ -14,37 +15,99 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login'),
+        title: Text('Sign In'),
         centerTitle: true,
+        backgroundColor: Colors.lightBlueAccent,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset('assets/StepFlow.jpg', height: 100),
-                SizedBox(height: 32.0),
-                TextField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.emailAddress,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 32.0),
+              Text(
+                'Welcome Back',
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  fontSize: 34,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue[900],
                 ),
-                SizedBox(height: 16.0),
-                TextField(
-                  controller: _passwordController,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
-                  ),
-                  obscureText: true,
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Please enter your email address and password for login',
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
                 ),
-                SizedBox(height: 16.0),
-                ElevatedButton(
+              ),
+                SizedBox(height: 40),
+                TextField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  hintText: 'mustermann@gmail.com',
+                  border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20.0),
+                  borderSide: BorderSide(
+                    color: Colors.lightBlueAccent,
+                    width: 2.0,
+                  ),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(vertical: 25.0, horizontal: 25.0),
+                ),
+                keyboardType: TextInputType.emailAddress,
+                style: TextStyle(fontSize: 20.0), // Increase font size
+                ),
+              SizedBox(height: 16.0),
+                TextField(
+                controller: _passwordController,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  hintText: 'Enter your password',
+                  border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20.0),
+                  borderSide: BorderSide(
+                    color: Colors.lightBlueAccent,
+                    width: 2.0,
+                  ),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(vertical: 25.0, horizontal: 25.0), // Increase padding
+                ),
+                keyboardType: TextInputType.visiblePassword,
+                style: TextStyle(fontSize: 20.0), // Decrease font size
+                obscureText: true,
+                ),
+              SizedBox(height: 16.0),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => MenuFrame()),
+                    );
+                  },
+                  child: Text(
+                    'Forgot Password?',
+                    style: TextStyle(color: Colors.blue),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16.0),
+              Center(
+                child: ElevatedButton(
                   onPressed: () async {
                     try {
                       final loginResponse = await sendLogin(
@@ -89,27 +152,79 @@ class LoginScreen extends StatelessWidget {
                       );
                     }
                   },
-                  child: Text('Login'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue[900],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 150.0,
+                      vertical: 30.0,
+                    ),
+                    shadowColor: Colors.blueAccent,
+                    elevation: 5.0,
+                  ),
+                  child: Text(
+                    'Sign In',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
-                SizedBox(height: 16.0),
-                TextButton(
+              ),
+              SizedBox(height: 20.0),
+              Center(
+                child: Text(
+                  'Sign in with',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+              SizedBox(height: 20.0),
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.apple),
+                      onPressed: () {
+                        // Handle Apple sign in
+                      },
+                    ),
+                    SizedBox(width: 20.0),
+                    IconButton(
+                      icon: Icon(Icons.g_mobiledata),
+                      onPressed: () {
+                        // Handle Google sign in
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20.0),
+              Center(
+                child: TextButton(
                   onPressed: () {
-                    print('Register as Teamlead');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => RegisterScreen()), // Navigate to the register screen
+                    );
                   },
-                  child: Text('Register'),
+                  child: Text.rich(
+                    TextSpan(
+                      text: 'Not Registered Yet? ',
+                      style: TextStyle(color: Colors.grey),
+                      children: [
+                        TextSpan(
+                          text: 'Sign Up',
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                TextButton(
-                  onPressed: () {
-                   Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => MenuFrame()),
-                        );
-                  },
-                  child: Text('Forgot Password?'),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -134,7 +249,6 @@ class LoginScreen extends StatelessWidget {
       throw Exception('Failed to connect to the server: $e');
     }
   }
-
 
   Future<String?> refreshAccessToken() async {
     final prefs = await SharedPreferences.getInstance();
