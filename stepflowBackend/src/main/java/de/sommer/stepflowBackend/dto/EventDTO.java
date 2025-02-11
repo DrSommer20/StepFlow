@@ -96,7 +96,7 @@ for(User user : event.getAttendees()) {
 this.color = event.getColor();
 this.recurrent = Boolean.toString(event.isRecurrent());
 this.recurrenceRule = event.getRecurrenceRule();
-this.teamId = event.getTeamId();
+this.teamId = event.getTeam().getId();
 
 }
 

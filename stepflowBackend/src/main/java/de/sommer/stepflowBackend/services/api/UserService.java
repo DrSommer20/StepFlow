@@ -22,4 +22,6 @@ public interface UserService extends UserDetailsService {
 
     void deleteUser(int id);
 
+    boolean isUserAdminOfTeam(User user, int teamId);
+
 }

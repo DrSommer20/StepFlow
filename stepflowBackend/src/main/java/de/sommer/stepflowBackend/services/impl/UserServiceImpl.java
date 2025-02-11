@@ -70,4 +70,9 @@ public class UserServiceImpl implements UserService{
                 .password(user.getPassword())
                 .build();
     }
+
+    @Override
+    public boolean isUserAdminOfTeam(User user, int teamId) {
+        return user.getMemberships().stream().anyMatch(membership -> membership.getTeam().getId() == teamId && membership.getRole().equals("admin"));
+    }
 }

@@ -32,8 +32,9 @@ public class Penalty {
     private Boolean paid = false;
 
     @ManyToOne
-    @JoinColumn() //TODO: Join Teams
+    @JoinColumn(name = "team_id", referencedColumnName = "id", nullable = false)
     private Team team;
+
 
     // Getters and Setters
 
@@ -75,5 +76,13 @@ public class Penalty {
 
     public void setPaid(Boolean paid) {
         this.paid = paid;
+    }
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
     }
 }
