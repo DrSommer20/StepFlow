@@ -14,25 +14,19 @@ void main() async {
   final themeJson = jsonDecode(themeStr);
   final theme = ThemeDecoder.decodeThemeData(themeJson)!;
 
-  final darkThemeStr = await rootBundle.loadString('assets/appainter_theme_dark_mode.json');
-  final darkThemeJson = jsonDecode(darkThemeStr);
-  final darkTheme = ThemeDecoder.decodeThemeData(darkThemeJson) ?? ThemeData.dark();
-
-  runApp(MyApp(theme: theme, darkTheme: darkTheme));
+  runApp(MyApp(theme: theme));
 }
 
 class MyApp extends StatelessWidget {
   final ThemeData theme;
-  final ThemeData darkTheme;
 
-  const MyApp({super.key, required this.theme, required this.darkTheme});
+  const MyApp({super.key, required this.theme});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'StepFlow',
       theme: theme,
-      darkTheme: darkTheme,
       themeMode: ThemeMode.system,
       home: FutureBuilder(
         future: _checkToken(),
