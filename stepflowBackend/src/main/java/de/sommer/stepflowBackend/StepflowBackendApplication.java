@@ -9,5 +9,4 @@ public class StepflowBackendApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(StepflowBackendApplication.class, args);
 	}
-
 }

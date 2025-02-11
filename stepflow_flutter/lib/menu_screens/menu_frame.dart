@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:ionicons/ionicons.dart';
+import 'package:stepflow/menu_screens/events_new.dart';
 import 'home.dart';
-import 'events.dart';
 import 'fines.dart';
 import 'carpool.dart';
 import 'profile.dart';
@@ -17,7 +18,7 @@ class MenuFrameState extends State<MenuFrame> {
 
   static final List<Widget> _widgetOptions = <Widget>[
     HomeScreen(),
-    EventsScreen(),
+    EventsNewScreen(),
     FinesScreen(),
     CarpoolScreen(),
     ProfileScreen(),
@@ -35,34 +36,36 @@ class MenuFrameState extends State<MenuFrame> {
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedIndex,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+        height: 60,
+        indicatorShape: CircleBorder(
+          side: BorderSide(color: Colors.blue, width: 40),
+        ),
+        onDestinationSelected: _onItemTapped,
+        destinations: const <NavigationDestination>[
+          NavigationDestination(
+        icon: Icon(Ionicons.home),
+        label: 'Home',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.event),
-            label: 'Events',
+          NavigationDestination(
+        icon: Icon(Ionicons.calendar),
+        label: 'Events',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.money),
-            label: 'Fines',
+          NavigationDestination(
+        icon: Icon(Ionicons.cash),
+        label: 'Fines',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.directions_car),
-            label: 'Carpool',
+          NavigationDestination(
+        icon: Icon(Ionicons.car),
+        label: 'Carpool',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
+          NavigationDestination(
+        icon: Icon(Ionicons.person),
+        label: 'Profile',
           ),
         ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Theme.of(context).indicatorColor,
-        unselectedItemColor: Theme.of(context).disabledColor,
-        onTap: _onItemTapped,
-      ),
-    );
+      ),);
   }
 }

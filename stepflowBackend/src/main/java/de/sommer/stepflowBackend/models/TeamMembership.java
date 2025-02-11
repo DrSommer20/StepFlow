@@ -21,8 +21,10 @@ public class TeamMembership {
     @Column(name = "role", nullable = false)
     private String role;
 
-    public TeamMembership(User user2, Team team2, String string) {
-        //TODO Auto-generated constructor stub
+    public TeamMembership(User user, Team team, String role) {
+        this.user = user;
+        this.team = team;
+        this.role = role;
     }
 
     // Getters and Setters

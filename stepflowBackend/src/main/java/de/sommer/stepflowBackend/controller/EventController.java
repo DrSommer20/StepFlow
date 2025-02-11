@@ -21,6 +21,7 @@ import de.sommer.stepflowBackend.models.Event;
 import de.sommer.stepflowBackend.models.User;
 import de.sommer.stepflowBackend.services.api.AuthService;
 import de.sommer.stepflowBackend.services.api.EventService;
+import de.sommer.stepflowBackend.services.api.TeamService;
 import de.sommer.stepflowBackend.services.api.UserService;
 
 @RestController
@@ -37,15 +38,18 @@ public class EventController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private TeamService teamService;
+
     @PostMapping
-    public ResponseEntity<?> createEvent(@RequestHeader("Authorization") String token, @RequestBody EventDTO event) {
+    public ResponseEntity<?> createEvent(@RequestHeader("Authorization") String token, @RequestBody EventDTO event, @RequestHeader("Team") int teamId) {
         Optional<User> user = userService.getUserByEmail(authService.extractEmail(token.replace("Bearer ", "")));
         if(event == null || event.getTitle() == null || event.getStart() == null || event.getEnd() == null || user.isEmpty()) {
             return ResponseEntity.badRequest().body("Invalid event. Information missing, please provide title, date and User");
         }
         Event newEvent;
         try{
-            newEvent = new Event(event, user.get());
+            newEvent = new Event(event, user.get(), teamService.getTeam(teamId).get());
         }
         catch(Exception e){
             return ResponseEntity.badRequest().body("Invalid date format. Use yyyy-MM-dd");
@@ -69,13 +73,13 @@ public class EventController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateEvent(@RequestHeader("Authorization") String token, @PathVariable int id, @RequestBody EventDTO event) {
+    public ResponseEntity<?> updateEvent(@RequestHeader("Authorization") String token, @PathVariable int id, @RequestBody EventDTO event, @RequestHeader("Team") int teamId) {
         Optional<User> user = userService.getUserByEmail(authService.extractEmail(token.replace("Bearer ", "")));
         Optional<Event> existingEvent = eventService.getEventById(id);
         if(existingEvent.isEmpty() || user.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        Event updatedEvent = eventService.updateEvent(id, new Event(event, user.get()));
+        Event updatedEvent = eventService.updateEvent(id, new Event(event, user.get(), teamService.getTeam(teamId).get()));
         return ResponseEntity.ok(new EventDTO(updatedEvent));
     }
 

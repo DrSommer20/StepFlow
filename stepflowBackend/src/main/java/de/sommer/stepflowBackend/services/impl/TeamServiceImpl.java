@@ -3,6 +3,7 @@ package de.sommer.stepflowBackend.services.impl;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import de.sommer.stepflowBackend.models.Team;
 import de.sommer.stepflowBackend.models.TeamMembership;
@@ -11,6 +12,7 @@ import de.sommer.stepflowBackend.repo.TeamRepository;
 import de.sommer.stepflowBackend.services.api.TeamService;
 import de.sommer.stepflowBackend.services.api.UserService;
 
+@Service
 public class TeamServiceImpl implements TeamService{
 
     @Autowired

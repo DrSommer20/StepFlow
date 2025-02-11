@@ -1,12 +1,12 @@
-package de.sommer.stepflowBackend.models;
+// package de.sommer.stepflowBackend.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+// import jakarta.persistence.Entity;
+// import jakarta.persistence.Table;
 
-@Entity
-@Table(name = "todo")
-public class ToDo {
+// @Entity
+// @Table(name = "todo")
+// public class ToDo {
 
     
     
-}
+// }

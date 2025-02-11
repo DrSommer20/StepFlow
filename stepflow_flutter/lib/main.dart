@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'menu_screens/menu_frame.dart';
@@ -7,32 +8,68 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:json_theme/json_theme.dart';
 
+
+// Approximate Color Values (Adjust these based on your image)
+const Color primaryColor = Color(0xFF005CB2); // Darkest Blue
+const Color secondaryColor = Color(0xFFF26A25); // Darkest Orange
+const Color surfaceColor = Color(0xFFE0F2F7); // Lightest Blue
+const Color errorColor = Colors.red; // Standard Red (Customize if needed)
+const Color backgroundColor = Colors.white; // White Background
+
+// Define the Color Scheme
+ColorScheme colorScheme = ColorScheme.light(
+  primary: primaryColor,
+  secondary: secondaryColor,
+  surface: surfaceColor,
+  error: errorColor,  
+  onPrimary: Colors.white, // White text on Primary Blue
+  onSecondary: Colors.white, // White text on Secondary Orange
+  onSurface: Colors.black, // Black text on Lightest Blue
+  onError: Colors.white,  // White text on Error Red
+);
+
+// Create the ThemeData
+ThemeData lightTheme = ThemeData(
+  colorScheme: colorScheme,
+  fontFamily: 'Roboto', // Or your preferred font family
+  textTheme: const TextTheme(
+    headlineLarge: TextStyle(fontSize: 32.0, fontWeight: FontWeight.bold),
+    headlineMedium: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+    bodyLarge: TextStyle(fontSize: 16.0),
+    bodyMedium: TextStyle(fontSize: 14.0),
+  ),
+  // Add other theme customizations as needed (e.g., AppBar theme)
+  appBarTheme: const AppBarTheme(
+    backgroundColor: primaryColor, // Primary Blue AppBar
+    foregroundColor: Colors.white, // White text on AppBar
+  ),
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: secondaryColor, // Secondary Orange Button
+      foregroundColor: Colors.white, // White text on Button
+    ),
+  ),
+);
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final themeStr = await rootBundle.loadString('assets/appainter_theme.json');
-  final themeJson = jsonDecode(themeStr);
-  final theme = ThemeDecoder.decodeThemeData(themeJson)!;
+  Icon(Ionicons.add);
+  Icon(Ionicons.add_outline);
+  Icon(Ionicons.add_sharp);
 
-  final darkThemeStr = await rootBundle.loadString('assets/appainter_theme_dark_mode.json');
-  final darkThemeJson = jsonDecode(darkThemeStr);
-  final darkTheme = ThemeDecoder.decodeThemeData(darkThemeJson) ?? ThemeData.dark();
-
-  runApp(MyApp(theme: theme, darkTheme: darkTheme));
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final ThemeData theme;
-  final ThemeData darkTheme;
 
-  const MyApp({super.key, required this.theme, required this.darkTheme});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'StepFlow',
-      theme: theme,
-      darkTheme: darkTheme,
+      theme: lightTheme,
       themeMode: ThemeMode.system,
       home: FutureBuilder(
         future: _checkToken(),

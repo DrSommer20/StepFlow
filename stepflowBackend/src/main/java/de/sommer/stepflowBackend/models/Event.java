@@ -4,11 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import de.sommer.stepflowBackend.dto.EventDTO;
-import de.sommer.stepflowBackend.services.api.EventService;
-import de.sommer.stepflowBackend.services.api.TeamService;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -41,7 +37,7 @@ public class Event {
     @Column(name = "end_date", nullable = false) // Enddatum darf nicht null sein
     private LocalDateTime end;
 
-    private String location;
+    private String location = "Test";
 
     @ManyToMany // Many-to-Many-Beziehung zu User
     @JoinTable(
@@ -72,10 +68,7 @@ public class Event {
     @JoinColumn(name = "team_id", referencedColumnName = "id", nullable = false)
     private Team team;
 
-    @Autowired
-    TeamService teamService;
-
-    public Event(EventDTO event, User user) {
+    public Event(EventDTO event, User user, Team team) {
         this.title = event.getTitle();
         this.description = event.getDescription();
         this.start = LocalDateTime.parse(event.getStart());
@@ -86,7 +79,7 @@ public class Event {
         this.recurrenceRule = event.getRecurrenceRule();
         this.createdBy = user;
         this.allDay = event.isAllDay();
-        this.team = teamService.getTeam(event.getTeamId()).get();
+        this.team = team;
     }
 
     public Event() {
