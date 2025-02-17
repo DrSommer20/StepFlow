@@ -2,12 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:easy_date_timeline/easy_date_timeline.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:intl/intl.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stepflow/login_screen.dart';
-import 'package:stepflow/menu_screens/events.dart';
+import 'package:stepflow/menu_screens/event_dto.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'package:http/http.dart' as http;
@@ -66,7 +65,7 @@ class _EventsNewScreenState extends State<EventsNewScreen> {
         Navigator.push(
           // Use Navigator.push for navigation
           context,
-          MaterialPageRoute(builder: (context) => LoginScreen()),
+          MaterialPageRoute(builder: (context) => LoginScreen(onLoginSuccess: _loadTokenAndEvents)),
         );
       }
     }
@@ -76,6 +75,7 @@ class _EventsNewScreenState extends State<EventsNewScreen> {
     final response = await http.get(
       Uri.parse(apiUrl),
       headers: {'Authorization': 'Bearer $_authToken'},
+
     );
 
     if (response.statusCode == 200) {
@@ -91,18 +91,19 @@ class _EventsNewScreenState extends State<EventsNewScreen> {
       });
       _scrollToToday(); // Scroll after events are loaded.
       } else {
-        print('Error: Unexpected API response format: $jsonData');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error loading events. Check console.')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Error loading events. Check console.')),
+          );
+        }
       }
     } else {
-      print(
-          'Error: Failed to load events: ${response.statusCode}, ${response.body}');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text('Failed to load events: ${response.statusCode}')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Failed to load events: ${response.statusCode}')),
+        );
+      }
     }
   }
 
@@ -139,10 +140,12 @@ class _EventsNewScreenState extends State<EventsNewScreen> {
       _isRecurrent = false; // Zurücksetzen
       _selectedRecurrenceRule = null; // Zurücksetzen
     } else {
-      print('Failed to add event: ${response.statusCode}, ${response.body}');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to add event: ${response.statusCode}')),
-      );
+      if(mounted){
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add event: ${response.statusCode}')),
+        );
+      }
+      
     }
   }
 

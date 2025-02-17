@@ -24,6 +24,7 @@ import de.sommer.stepflowBackend.services.api.EventService;
 import de.sommer.stepflowBackend.services.api.TeamService;
 import de.sommer.stepflowBackend.services.api.UserService;
 
+
 @RestController
 @RequestMapping("/api/events")
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -42,7 +43,10 @@ public class EventController {
     private TeamService teamService;
 
     @PostMapping
-    public ResponseEntity<?> createEvent(@RequestHeader("Authorization") String token, @RequestBody EventDTO event, @RequestHeader("Team") int teamId) {
+    public ResponseEntity<?> createEvent(@RequestBody EventDTO event, @RequestHeader("Team") int teamId, @RequestHeader("Authorization") String token) {
+        if(!checkUserPartOfTeam(token, teamId)) {
+            return ResponseEntity.status(403).build();
+        }
         Optional<User> user = userService.getUserByEmail(authService.extractEmail(token.replace("Bearer ", "")));
         if(event == null || event.getTitle() == null || event.getStart() == null || event.getEnd() == null || user.isEmpty()) {
             return ResponseEntity.badRequest().body("Invalid event. Information missing, please provide title, date and User");
@@ -59,21 +63,30 @@ public class EventController {
         }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getEvent(@PathVariable int id) {
+    public ResponseEntity<?> getEvent(@PathVariable int id, @RequestHeader("Team") int teamId, @RequestHeader("Authorization") String token) {
+        if(!checkUserPartOfTeam(token, teamId)) {
+            return ResponseEntity.status(403).build();
+        }
         Optional<Event> event = eventService.getEventById(id);
-        if(event.isEmpty()) {
+        if(event.isEmpty() || event.get().getTeam().getId() != teamId) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(new EventDTO(event.get()));
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllEvents() {
-        return ResponseEntity.ok(new EventListDTO(eventService.getAllEvents(), true));
+    public ResponseEntity<?> getAllEvents(@RequestHeader("Team") int teamId, @RequestHeader("Authorization") String token) {
+        if(!checkUserPartOfTeam(token, teamId)) {
+            return ResponseEntity.status(403).build();
+        }
+        return ResponseEntity.ok(new EventListDTO(eventService.getAllEvents(teamId), true));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateEvent(@RequestHeader("Authorization") String token, @PathVariable int id, @RequestBody EventDTO event, @RequestHeader("Team") int teamId) {
+    public ResponseEntity<?> updateEvent(@PathVariable int id, @RequestBody EventDTO event, @RequestHeader("Team") int teamId, @RequestHeader("Authorization") String token) {
+        if(!checkUserPartOfTeam(token, teamId)) {
+            return ResponseEntity.status(403).build();
+        }
         Optional<User> user = userService.getUserByEmail(authService.extractEmail(token.replace("Bearer ", "")));
         Optional<Event> existingEvent = eventService.getEventById(id);
         if(existingEvent.isEmpty() || user.isEmpty()) {
@@ -84,12 +97,32 @@ public class EventController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteEvent(@PathVariable int id) {
+    public ResponseEntity<?> deleteEvent(@PathVariable int id, @RequestHeader("Team") int teamId, @RequestHeader("Authorization") String token) {
+        if(!checkUserPartOfTeam(token, teamId)) {
+            return ResponseEntity.status(403).build();
+        }
         Optional<Event> event = eventService.getEventById(id);
-        if(event.isEmpty()) {
+        if(event.isEmpty() || event.get().getTeam().getId() != teamId) {
             return ResponseEntity.notFound().build();
         }
         eventService.deleteEvent(id);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/today")
+    public ResponseEntity<?> isEventToday(@RequestHeader("Team") int teamId, @RequestHeader("Authorization") String token) {
+        if(!checkUserPartOfTeam(token, teamId)) {
+            return ResponseEntity.status(403).build();
+        }
+        return ResponseEntity.ok(new EventListDTO(eventService.isEventToday(teamId), true));
+    }
+
+    private boolean checkUserPartOfTeam(String token, int teamId) {
+        Optional<User> currentUser = userService.getUserByEmail(authService.extractEmail(token.replace("Bearer ", "")));
+        if (currentUser.isEmpty() || !userService.isUserMemberOfTeam(currentUser.get(), teamId)) {
+            return false;
+        }
+        return true;
+    }
+    
 }

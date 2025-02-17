@@ -27,6 +27,8 @@ public class TeamMembership {
         this.role = role;
     }
 
+    public TeamMembership() {
+    }
     // Getters and Setters
     public int getId() {
         return id;

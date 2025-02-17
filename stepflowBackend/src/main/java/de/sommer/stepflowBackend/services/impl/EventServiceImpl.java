@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.time.LocalDate;
 
 @Service
 public class EventServiceImpl implements EventService {
@@ -16,8 +18,8 @@ public class EventServiceImpl implements EventService {
     private EventRepository eventRepository;
 
     @Override
-    public List<Event> getAllEvents() {
-        return eventRepository.findAll();
+    public List<Event> getAllEvents(int teamId) {
+        return eventRepository.findByTeamId(teamId);
     }
 
     @Override
@@ -56,7 +58,7 @@ public class EventServiceImpl implements EventService {
             existingEvent.setStart(eventDetails.getStart());
             existingEvent.setEnd(eventDetails.getEnd());
             existingEvent.setLocation(eventDetails.getLocation());
-            existingEvent.setAttendees(eventDetails.getAttendees());
+            existingEvent.setEventAttendees(eventDetails.getEventAttendees());
             existingEvent.setRecurrenceRule(eventDetails.getRecurrenceRule());
             existingEvent.setRecurrent(eventDetails.isRecurrent());
             existingEvent.setAllDay(eventDetails.isAllDay());
@@ -69,5 +71,20 @@ public class EventServiceImpl implements EventService {
     @Override
     public void deleteEvent(int id) {
         eventRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Event> isEventToday(int teamId) {
+        List<Event> events = getAllEvents(teamId);
+        LocalDate today = LocalDate.now();
+        return events.stream()
+            .filter(event -> {
+                LocalDate startDate = event.getStart().toLocalDate();
+                LocalDate endDate = event.getEnd().toLocalDate();
+                return (startDate.isEqual(today) || endDate.isEqual(today) || 
+                    (startDate.isBefore(today) && endDate.isAfter(today)));
+            })
+            .collect(Collectors.toList());
+        
     }
 }

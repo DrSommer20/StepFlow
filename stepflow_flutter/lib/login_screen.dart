@@ -5,11 +5,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'menu_screens/menu_frame.dart';
 import 'registration/register_screen.dart'; // Import the new register screen
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  final VoidCallback onLoginSuccess;
+
+  const LoginScreen({super.key, required this.onLoginSuccess});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
-  LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -116,11 +123,10 @@ class LoginScreen extends StatelessWidget {
                       if (loginResponse.statusCode == 200) {
                         final loginData = jsonDecode(loginResponse.body);
                         final token = loginData['token']; // Access token
-                        print('Access token: $token');
-                        print(loginData);
-
+                        
                         final prefs = await SharedPreferences.getInstance();
                         await prefs.setString('token', token);
+                        widget.onLoginSuccess();
 
                         if (!context.mounted) return;
                         Navigator.pushReplacement(
@@ -136,7 +142,6 @@ class LoginScreen extends StatelessWidget {
                               content: Text('Invalid email or password.')),
                         );
                       } else {
-                        print('Login failed: ${loginResponse.body}');
                         if (!context.mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -145,7 +150,6 @@ class LoginScreen extends StatelessWidget {
                         );
                       }
                     } catch (e) {
-                      print('Error: $e');
                       if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('An error occurred.')),
@@ -271,13 +275,11 @@ class LoginScreen extends StatelessWidget {
         await prefs.setString('token', newAccessToken); // Store new access token
         return newAccessToken;
       } else {
-        print('Token refresh failed: ${response.statusCode}, ${response.body}');
         // Handle refresh token failure (e.g., clear tokens and redirect to login)
         await prefs.remove('token');
         return null; // Indicate failure
       }
     } catch (e) {
-      print('Error during token refresh: $e');
       return null;
     }
   }

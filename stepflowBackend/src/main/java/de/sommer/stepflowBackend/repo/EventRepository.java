@@ -18,4 +18,5 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
     List<Event> findByEnd(Date end);
     List<Event> findByCreatedBy(User user);
     Optional<Event> findByIdAndCreatedBy(int eventId, User user);
+    List<Event> findByTeamId(int teamId);
 }

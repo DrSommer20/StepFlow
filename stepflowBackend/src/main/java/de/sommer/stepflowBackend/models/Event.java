@@ -11,9 +11,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity // Markiert die Klasse als Entity für die Datenbank
@@ -39,13 +38,8 @@ public class Event {
 
     private String location = "Test";
 
-    @ManyToMany // Many-to-Many-Beziehung zu User
-    @JoinTable(
-        name = "event_attendees", // Name der Join-Tabelle
-        joinColumns = @JoinColumn(name = "event_id"), // Spalte für Event-ID in der Join-Tabelle
-        inverseJoinColumns = @JoinColumn(name = "user_id") // Spalte für User-ID in der Join-Tabelle
-    )
-    private List<User> attendees = new ArrayList<>();
+    @OneToMany(mappedBy = "event")
+    private List<EventAttendee> eventAttendees = new ArrayList<>();
 
     @Column(nullable = false) // Farbe darf nicht null sein
     private String color = "#000000"; // Standardfarbe ist Schwarz
@@ -133,14 +127,6 @@ public class Event {
         this.location = location;
     }
 
-    public List<User> getAttendees() {
-        return attendees;
-    }
-
-    public void setAttendees(List<User> attendees) {
-        this.attendees = attendees;
-    }
-
     public String getColor() {
         return color;
     }
@@ -181,6 +167,28 @@ public class Event {
         this.team = team;
     }
 
-    
+    public List<EventAttendee> getEventAttendees() {
+        return eventAttendees;
+    }
 
+    public void setEventAttendees(List<EventAttendee> eventAttendees) {
+        this.eventAttendees = eventAttendees;
+    }
+
+    public void addAttendee(User user) {
+        EventAttendee eventAttendee = new EventAttendee(this, user);
+        eventAttendees.add(eventAttendee);
+    }
+
+    public void removeAttendee(User user) {
+        eventAttendees.removeIf(eventAttendee -> eventAttendee.getUser().getId() == user.getId());
+    }
+
+    public User getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(User createdBy) {
+        this.createdBy = createdBy;
+    }
 }

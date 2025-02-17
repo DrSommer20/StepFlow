@@ -7,19 +7,13 @@ import java.util.Optional;
 
 public interface EventService {
 
-    List<Event> getAllEvents();
-
+    List<Event> getAllEvents(int teamId);
     Optional<Event> getEventById(int id);
-
     List<Event> getEventsByTitle(String title);
-
     List<Event> getEventsByLocation(String location);
-
     List<Event> getEventsByCreatedBy(int userId);
-
     Event createEvent(Event event);
-
     Event updateEvent(int id, Event eventDetails);
-
     void deleteEvent(int id);
+    List<Event> isEventToday(int teamId);
 }

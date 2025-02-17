@@ -2,7 +2,11 @@
 package de.sommer.stepflowBackend.dto;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -11,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import de.sommer.stepflowBackend.models.User;
+import de.sommer.stepflowBackend.services.api.UserService;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -20,7 +25,8 @@ import de.sommer.stepflowBackend.models.User;
     "email",
     "password",
     "role",
-    "active"
+    "active",
+    "teamIds"
 })
 public class UserDTO {
 
@@ -36,8 +42,13 @@ public class UserDTO {
     private String password;
     @JsonProperty("active")
     private Boolean active;
+    @JsonProperty("teamIds")
+    private List<Integer> teamIds;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new LinkedHashMap<String, Object>();
+
+    @Autowired
+    private UserService userService;
 
     /**
      * No args constructor for use in serialization
@@ -56,6 +67,17 @@ public class UserDTO {
         this.active = active;
     }
 
+    public UserDTO(Integer userId, String name, String firstName, String email, String password, Boolean active, List<Integer> teamIds) {
+        super();
+        this.userId = userId;
+        this.name = name;
+        this.firstName = firstName;
+        this.email = email;
+        this.password = password;
+        this.active = active;
+        this.teamIds = teamIds;
+    }
+
     public UserDTO(User user) {
         this.userId = user.getId();
         this.name = user.getName();
@@ -63,6 +85,7 @@ public class UserDTO {
         this.email = user.getEmail();
         this.password = "";
         this.active = user.isActive();
+        this.teamIds = user.getMemberships().stream().map(membership -> membership.getTeam().getId()).toList();
     }
 
     @JsonProperty("userId")
@@ -123,6 +146,16 @@ public class UserDTO {
     @JsonProperty("active")
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    @JsonProperty("teamIds")
+    public List<Integer> getTeamIds() {
+        return teamIds;
+    }
+
+    @JsonProperty("teamIds")
+    public void setTeamIds(List<Integer> teamIds) {
+        this.teamIds = teamIds;
     }
 
     @JsonAnyGetter

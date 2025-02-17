@@ -1,12 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'menu_screens/menu_frame.dart';
 import 'login_screen.dart';
-import 'dart:convert';
-import 'package:flutter/services.dart';
-import 'package:json_theme/json_theme.dart';
 
 
 // Approximate Color Values (Adjust these based on your image)
@@ -61,9 +60,22 @@ void main() async {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
 
   const MyApp({super.key});
+
+  @override
+  MyAppState createState() => MyAppState();
+}
+
+class MyAppState extends State<MyApp> {
+  bool _isLoggedIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkToken();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,26 +83,18 @@ class MyApp extends StatelessWidget {
       title: 'StepFlow',
       theme: lightTheme,
       themeMode: ThemeMode.system,
-      home: FutureBuilder(
-        future: _checkToken(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
-          } else if (snapshot.hasData && snapshot.data == true) {
-            return MenuFrame();
-          } else {
-            return LoginScreen();
-          }
-        },
-      ),
+      home: _isLoggedIn ? MenuFrame() : LoginScreen(onLoginSuccess: _checkToken),
     );
   }
 
-  Future<bool> _checkToken() async {
+  Future<void> _checkToken() async {
     final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token');
+    final token = prefs.getString('token');
     if (token == null) {
-      return false;
+      setState(() {
+        _isLoggedIn = false;
+      });
+      return;
     }
     final response = await http.get(
       Uri.parse('http://192.168.0.136:8080/api/auth/validate'),
@@ -99,9 +103,37 @@ class MyApp extends StatelessWidget {
       },
     );
     if (response.statusCode == 200) {
-      return true;
-    } else {
-      return false;
+      final userResponse = await http.get(
+        Uri.parse('http://192.168.0.136:8080/api/users'),
+        headers: {
+          'Authorization': 'Bearer $token',
+
+        },
+      );
+      if (userResponse.statusCode == 200) {
+        final userData = jsonDecode(userResponse.body);
+        final List<int> teamIds = List<int>.from(userData['teamIds']);
+        if (teamIds.isEmpty) {
+          setState(() {
+            _isLoggedIn = false;
+          });
+          return;
+        }
+        await prefs.setInt('userId', userData['userId']);
+        await prefs.setString('name', userData['name']);
+        await prefs.setString('firstName', userData['firstName']);
+        await prefs.setString('email', userData['email']);
+        await prefs.setString('password', userData['password']);
+        await prefs.setBool('active', userData['active']);
+        await prefs.setStringList('teamIds', teamIds.map((id) => id.toString()).toList());
+        setState(() {
+          _isLoggedIn = true;
+        });
+        return;
+      }
     }
+    setState(() {
+      _isLoggedIn = false;
+    });
   }
 }

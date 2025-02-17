@@ -9,6 +9,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -38,6 +39,10 @@ public class User {
 
     @Column(name = "active", nullable = false)
     private boolean active = true;
+
+    @Lob
+    @Column(name = "profile_picture")
+    private byte[] profilePicture;
 
     public User() {
     }

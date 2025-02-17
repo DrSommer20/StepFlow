@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import de.sommer.stepflowBackend.models.Team;
 import de.sommer.stepflowBackend.models.User;
 import de.sommer.stepflowBackend.repo.UserRepository;
 import de.sommer.stepflowBackend.services.api.UserService;
@@ -19,8 +20,11 @@ public class UserServiceImpl implements UserService{
     private UserRepository userRepository;
 
     @Override
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<User> getAllUsersOfTeam(int teamId) {
+        return userRepository.findAll().stream()
+                .filter(user -> user.getMemberships().stream()
+                        .anyMatch(membership -> membership.getTeam().getId() == teamId))
+                .toList();
     }
 
     @Override
@@ -74,5 +78,21 @@ public class UserServiceImpl implements UserService{
     @Override
     public boolean isUserAdminOfTeam(User user, int teamId) {
         return user.getMemberships().stream().anyMatch(membership -> membership.getTeam().getId() == teamId && membership.getRole().equals("admin"));
+    }
+
+    @Override
+    public List<Team> getTeamsOfUser(int userId) {
+        return userRepository
+        .findById(userId)
+        .get()
+        .getMemberships()
+        .stream()
+        .map(membership -> membership.getTeam())
+        .toList();
+    }
+
+    @Override
+    public boolean isUserMemberOfTeam(User user, int teamId) {
+        return user.getMemberships().stream().anyMatch(membership -> membership.getTeam().getId() == teamId);
     }
 }
