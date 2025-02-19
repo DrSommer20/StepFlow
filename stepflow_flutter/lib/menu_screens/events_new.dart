@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -18,48 +19,58 @@ class EventsNewScreen extends StatefulWidget {
   @override
   State<EventsNewScreen> createState() => _EventsNewScreenState();
 }
+class _EventsNewScreenState extends State<EventsNewScreen> with AutomaticKeepAliveClientMixin {  
+ @override
+  bool get wantKeepAlive => true;
 
-class _EventsNewScreenState extends State<EventsNewScreen> {
+  late Timer _timer;
 
   final String apiUrl = 'http://192.168.0.136:8080/api/events';
   DateTime _selectedDate = DateTime.now();
   List<EventDTO> events = [];
+  int eventsToday = 0;
   String? _authToken; // Store the auth token
-  bool _eventsLoaded = false;
+  int? _selectedTeamId; // Store the selected team ID
 
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
   bool _allDay = false;
   DateTime _startDateTime = DateTime.now();
   DateTime _endDateTime = DateTime.now().add(const Duration(hours: 1));
   String? _selectedColor;
-  bool _isRecurrent = false;
-  String? _selectedRecurrenceRule;
   final startDate = DateTime.now().subtract(const Duration(days: 365 ~/ 2));
   final endDate = DateTime.now().add(const Duration(days: 365 * 3 ~/ 2));
 
   final ItemScrollController _scrollController = ItemScrollController();
 
-  final List<String> _recurrenceRules = [
-    'DAILY',
-    'WEEKLY',
-    'MONTHLY',
-    'YEARLY',
-  ];
-
   @override
   void initState() {
     super.initState();
+    _scrollToToday();
     _loadTokenAndEvents(); // Load events on screen initialization
+    _startAutoUpdate(); // Start the auto-update timer
+  }
+  @override
+  void dispose() {
+    _timer.cancel(); // Cancel the timer when the widget is disposed
+    super.dispose();
+  }
+
+  void _startAutoUpdate() {
+    _timer = Timer.periodic(const Duration(minutes: 1), (timer) {
+      _loadEvents();
+      _loadEventsToday();
+    });
   }
 
   Future<void> _loadTokenAndEvents() async {
     final prefs = await SharedPreferences.getInstance();
     _authToken = prefs.getString('token');
+    _selectedTeamId = prefs.getInt('currentTeamId');
     if (_authToken != null) {
-      await _loadEvents();
-      _eventsLoaded = true; // Set flag after loading
-      _scrollToToday(); // Scroll after events are loaded
+      _loadEvents();
+      _loadEventsToday();
     } else {
       if (mounted) {
         Navigator.push(
@@ -74,7 +85,10 @@ class _EventsNewScreenState extends State<EventsNewScreen> {
   Future<void> _loadEvents() async {
     final response = await http.get(
       Uri.parse(apiUrl),
-      headers: {'Authorization': 'Bearer $_authToken'},
+      headers: {
+        'Authorization': 'Bearer $_authToken',
+        'Team': _selectedTeamId.toString(),
+      },
 
     );
 
@@ -86,10 +100,7 @@ class _EventsNewScreenState extends State<EventsNewScreen> {
         events = eventsData
             .map((eventJson) => EventDTO.fromJson(eventJson))
             .toList();
-        setState(() {
-        _eventsLoaded = true; // Set the flag to true here as well
-      });
-      _scrollToToday(); // Scroll after events are loaded.
+        setState(() { });
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -115,11 +126,9 @@ class _EventsNewScreenState extends State<EventsNewScreen> {
       description: _descriptionController.text,
       start: _startDateTime,
       end: _endDateTime,
-      color: _selectedColor, 
-      recurrent: _isRecurrent, 
-      recurrenceRule: _selectedRecurrenceRule, 
+      color: _selectedColor,
       allDay: _allDay, 
-      location: 'Home',
+      location: _locationController.text,
     );
 
     final response = await http.post(
@@ -127,7 +136,7 @@ class _EventsNewScreenState extends State<EventsNewScreen> {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $_authToken',
-        'Team': '1',
+        'Team': _selectedTeamId.toString(),
       },
       body: jsonEncode(event.toJson()),
     );
@@ -136,9 +145,8 @@ class _EventsNewScreenState extends State<EventsNewScreen> {
       _loadEvents();
       _titleController.clear();
       _descriptionController.clear();
+      _locationController.clear();
       _selectedColor = null; // Zurücksetzen
-      _isRecurrent = false; // Zurücksetzen
-      _selectedRecurrenceRule = null; // Zurücksetzen
     } else {
       if(mounted){
         ScaffoldMessenger.of(context).showSnackBar(
@@ -149,6 +157,29 @@ class _EventsNewScreenState extends State<EventsNewScreen> {
     }
   }
 
+  Future<void> _loadEventsToday() async{
+    final response = await http.get(
+      Uri.parse('$apiUrl/today'),
+      headers: {
+        'Authorization': 'Bearer $_authToken',
+        'Team': _selectedTeamId.toString(),
+      },
+    );
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body);
+
+      if (jsonData is Map<String, dynamic> && jsonData.containsKey('events')) {
+        final eventsData = jsonData['events'] as List<dynamic>;
+        eventsToday = eventsData.length;
+      } else {
+        eventsToday = 0;
+      }
+    } else {
+      eventsToday = 0;
+    }
+    setState(() { });
+  }
+
 
   void _scrollToSelectedDate() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -156,7 +187,7 @@ class _EventsNewScreenState extends State<EventsNewScreen> {
       if (index != -1) {
         _scrollController.scrollTo(
           index: index,
-          duration: const Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 500),
           curve: Curves.easeInOut,
         );
       }
@@ -164,15 +195,13 @@ class _EventsNewScreenState extends State<EventsNewScreen> {
   }
 
   void _scrollToToday() {
-    if (!_eventsLoaded) return; // Don't scroll if events are not loaded yet
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final today = DateTime.now();
+      final todayComplete = DateTime.now().toLocal();
+      final today = DateTime(todayComplete.year, todayComplete.month, todayComplete.day);
       final index = _getDateIndex(today);
       if (index != -1) {
         _scrollController.scrollTo(
-          index: index,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
+          index: index, duration: const Duration(milliseconds: 10),
         );
       }
     });
@@ -185,26 +214,8 @@ class _EventsNewScreenState extends State<EventsNewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollToToday();
-    });
-
+    super.build(context); 
     return Scaffold(
-      appBar: PreferredSize(
-      preferredSize: Size.fromHeight(75.0),
-      child: AppBar(
-        automaticallyImplyLeading: false, // Remove back button
-        title: Padding(
-        padding: const EdgeInsets.only(top: 40.0),
-        child: const Text(
-          'Termin Übersicht',
-          style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold), // Larger title
-        ),
-        ),
-        centerTitle: true,  // Center the title if you want
-        elevation: 5, 
-      ),
-      ),
       body: Column(
       children: [
         // Categories selection
@@ -215,16 +226,15 @@ class _EventsNewScreenState extends State<EventsNewScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start, // Bind to the left side
             children: [
-            const Text('Alle Termine', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
-            const Text('1 Training heute', style: TextStyle(fontWeight: FontWeight.w200, fontSize: 14.0)),
+            const Text('Alle Termine', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24.0, color: Color.fromARGB(255, 1, 42, 113))),
+            Text('$eventsToday Trainings heute', style: TextStyle(fontWeight: FontWeight.w200, fontSize: 14.0)),
             ],
           ),
           const Spacer(), // Add a spacer to push the button to the right
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.transparent, // Transparent background
+            style: ElevatedButton.styleFrom( 
+            backgroundColor: Color(0xFFE0F2F7), // White background
             side: BorderSide(color: Colors.lightBlue, width: 2.0), // Light blue outline
-            shape: CircleBorder(), // Circular shape
             ),
             onPressed: () {
             _showAddEventDialog(context); // Show the add event dialog
@@ -259,47 +269,64 @@ class _EventsNewScreenState extends State<EventsNewScreen> {
     
   }
 
-  Widget _buildEventList() {
-    // 1. Get date range (2 years before and after today)
-    final dateRange = _getDateRange(startDate, endDate);
+ Widget _buildEventList() {
+  // 1. Get date range (2 years before and after today)
+  final dateRange = _getDateRange(startDate, endDate);
 
-    // 2. Group events by date
-    final eventsByDate = <DateTime, List<EventDTO>>{};
-    for (final event in events) {
-      final date = DateTime(event.start.year, event.start.month, event.start.day);
-      eventsByDate.putIfAbsent(date, () => []);
-      eventsByDate[date]!.add(event);
-    }
+  // 2. Group events by date
+  final eventsByDate = <DateTime, List<EventDTO>>{};
+  for (final event in events) {
+    final date = DateTime(event.start.year, event.start.month, event.start.day);
+    eventsByDate.putIfAbsent(date, () => []);
+    eventsByDate[date]!.add(event);
+  }
 
-    // 3. Build the list
-    return ScrollablePositionedList.builder(
-      itemScrollController: _scrollController,
-      itemCount: dateRange.length,
-      itemBuilder: (context, index) {
-        final date = dateRange[index];
-        final eventsForDate = eventsByDate[date] ?? []; // Show empty list if no events
+  // 3. Build the list
+  final listView = ScrollablePositionedList.builder(
+    itemScrollController: _scrollController,
+    itemCount: dateRange.length,
+    itemBuilder: (context, index) {
+      final date = dateRange[index];
+      final eventsForDate = eventsByDate[date] ?? []; // Show empty list if no events
 
-        return Column(
-          key: index == _getDateIndex(_selectedDate) ? GlobalKey() : null, // Assign key to selected date item
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      // Check if the month has changed
+      bool isNewMonth = index == 0 || date.month != dateRange[index - 1].month;
+
+      return Column(
+        key: index == _getDateIndex(_selectedDate) ? GlobalKey() : null, // Assign key to selected date item
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (isNewMonth)
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0, bottom: 8.0),
               child: Text(
-                DateFormat.yMMMEd('de').format(date),
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                DateFormat.yMMMM('de').format(date),
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.blue),
               ),
             ),
-            // Display event boxes (or an empty message)
-            if (eventsForDate.isEmpty)
-              _buildNoEventsMessage()
-            else
-              for (final event in eventsForDate) _buildEventBox(event),
-          ],
-        );
-      },
-    );
-  }
+          const Divider(
+            color: Colors.grey,
+            indent: 16.0,
+            endIndent: 16.0,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 18.0, right: 18.0),
+            child: Text(
+              '${date.day}. ${DateFormat.EEEE('de').format(date)}',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
+          // Display event boxes (or an empty message)
+          if (eventsForDate.isEmpty)
+            _buildNoEventsMessage()
+          else
+            for (final event in eventsForDate) _buildEventBox(event),
+        ],
+      );
+    },
+  );
+  return listView;
+}
 
   List<DateTime> _getDateRange(DateTime start, DateTime end) {
     List<DateTime> range = [];
@@ -340,19 +367,20 @@ class _EventsNewScreenState extends State<EventsNewScreen> {
                     event.title,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 16,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-                Text(
+                Icon(Ionicons.chevron_forward_outline, color: Colors.white), 
+              ],
+            ),
+            Text(
                   event.allDay!
                       ? 'Ganztägig' // German for All Day
                       : '${DateFormat.jm('de').format(event.start)} - ${DateFormat.jm('de').format(event.end)}', // German time format
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Color.fromARGB(255, 204, 210, 219), fontSize: 14),
                 ),
-              ],
-            ),
             const SizedBox(height: 8),
             // ... (Add other event details as needed)
           ],
@@ -360,12 +388,11 @@ class _EventsNewScreenState extends State<EventsNewScreen> {
       ),
     );
   }
+  
   Future<void> _showAddEventDialog(BuildContext context) async {
     final selectedDate = _selectedDate;
     bool allDay = false;
-    bool isRecurrent = false;
-    String? selectedColor = 'blue';
-    String? selectedRecurrenceRule;
+    String? selectedColor = 'Blau';
     DateTime startDateTime = DateTime(selectedDate.year, selectedDate.month, selectedDate.day, 15, 0);
     DateTime endDateTime = startDateTime.add(Duration(hours: 1));
 
@@ -376,7 +403,7 @@ class _EventsNewScreenState extends State<EventsNewScreen> {
         final popupWidth = screenSize.width * 0.9; // 90% der Bildschirmbreite
 
         return AlertDialog(
-          title: const Text('Add Event'),
+          title: const Text('Neues Event'),
           content: SizedBox(
             width: popupWidth,
             child: SingleChildScrollView(
@@ -387,15 +414,20 @@ class _EventsNewScreenState extends State<EventsNewScreen> {
                     children: <Widget>[
                       TextField(
                         controller: _titleController,
-                        decoration: const InputDecoration(hintText: 'Title'),
+                        decoration: const InputDecoration(hintText: 'Titel'),
+                      ),
+                      TextField(
+                        controller: _locationController,
+                        decoration:
+                            const InputDecoration(hintText: 'Standort'),
                       ),
                       TextField(
                         controller: _descriptionController,
                         decoration:
-                            const InputDecoration(hintText: 'Description'),
+                            const InputDecoration(hintText: 'Information'),
                         maxLines: 3,
                       ),
-
+                      
                       // Checkbox für ganztägige Termine
                       Row(
                         children: [
@@ -407,7 +439,7 @@ class _EventsNewScreenState extends State<EventsNewScreen> {
                               });
                             },
                           ),
-                          const Text('All-day'),
+                          const Text('Ganztägig'),
                         ],
                       ),
 
@@ -577,14 +609,14 @@ class _EventsNewScreenState extends State<EventsNewScreen> {
 
                       // Farbauswahl
                       DropdownButtonFormField<String>(
-                        decoration: const InputDecoration(labelText: 'Color'),
-                        value: selectedColor ?? 'blue',
+                        decoration: const InputDecoration(labelText: 'Farbe'),
+                        value: selectedColor ?? 'Blau',
                         items: <String>[
-                          'red',
-                          'blue',
-                          'green',
-                          'yellow',
-                          'purple',
+                          'Rot',
+                          'Blau',
+                          'Grün',
+                          'Gelb',
+                          'Violett',
                         ].map((String value) {
                           return DropdownMenuItem<String>(
                             value: value,
@@ -597,40 +629,6 @@ class _EventsNewScreenState extends State<EventsNewScreen> {
                           });
                         },
                       ),
-
-                      // Wiederholung (Checkbox)
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: isRecurrent,
-                            onChanged: (bool? value) {
-                              setState(() {
-                                isRecurrent = value!;
-                              });
-                            },
-                          ),
-                          const Text('Recurrent'),
-                        ],
-                      ),
-
-                      // Dropdown für Wiederholungsregel (nur anzeigen, wenn wiederkehrend)
-                      if (isRecurrent)
-                        DropdownButtonFormField<String>(
-                          decoration: const InputDecoration(
-                              labelText: 'Recurrence Rule'),
-                          value: selectedRecurrenceRule,
-                          items: _recurrenceRules.map((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              _selectedRecurrenceRule = newValue;
-                            });
-                          },
-                        ),
                     ],
                   );
                 },
@@ -639,22 +637,18 @@ class _EventsNewScreenState extends State<EventsNewScreen> {
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel'),
+              child: const Text('Abbrechen'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: const Text('Add'),
+              child: const Text('Hinzufügen'),
               onPressed: () {
                 _allDay =
                     allDay; // Übertrage die Werte an den äußeren Scope
-                _isRecurrent =
-                    isRecurrent; // Übertrage die Werte an den äußeren Scope
                 _selectedColor =
                     selectedColor; // Übertrage die Werte an den äußeren Scope
-                _selectedRecurrenceRule =
-                    selectedRecurrenceRule; // Übertrage die Werte an den äußeren Scope
                 _startDateTime =
                     startDateTime; // Übertrage die Werte an den äußeren Scope
                 _endDateTime =

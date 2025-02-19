@@ -7,7 +7,9 @@ import 'carpool.dart';
 import 'profile.dart';
 
 class MenuFrame extends StatefulWidget {
-  const MenuFrame({super.key});
+  final VoidCallback onLogout;
+
+  const MenuFrame({super.key, required this.onLogout});
 
   @override
   MenuFrameState createState() => MenuFrameState();
@@ -33,6 +35,25 @@ class MenuFrameState extends State<MenuFrame> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false, // Remove back button
+        title: Text(
+            _selectedIndex == 0 ? 'Home' :
+            _selectedIndex == 1 ? 'Events' :
+            _selectedIndex == 2 ? 'Fines' :
+            _selectedIndex == 3 ? 'Carpool' :
+            'Profile',
+          style: const TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold), // Larger title
+        ),
+        centerTitle: true,  // Center the title if you want
+        elevation: 5, 
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: widget.onLogout,
+          ),
+        ],
+      ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),

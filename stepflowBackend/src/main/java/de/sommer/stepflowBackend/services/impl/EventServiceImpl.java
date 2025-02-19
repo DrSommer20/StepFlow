@@ -74,17 +74,17 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<Event> isEventToday(int teamId) {
+    public List<Event> eventsToday(int teamId) {
         List<Event> events = getAllEvents(teamId);
         LocalDate today = LocalDate.now();
         return events.stream()
-            .filter(event -> {
-                LocalDate startDate = event.getStart().toLocalDate();
-                LocalDate endDate = event.getEnd().toLocalDate();
-                return (startDate.isEqual(today) || endDate.isEqual(today) || 
-                    (startDate.isBefore(today) && endDate.isAfter(today)));
-            })
-            .collect(Collectors.toList());
+        .filter(event -> {
+            LocalDate startDate = event.getStart().toLocalDate();
+            LocalDate endDate = event.getEnd().toLocalDate();
+            return (startDate.isEqual(today) || endDate.isEqual(today) || 
+                (startDate.isBefore(today) && endDate.isAfter(today)));
+        })
+        .collect(Collectors.toList());
         
     }
 }

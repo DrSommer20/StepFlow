@@ -15,5 +15,5 @@ public interface EventService {
     Event createEvent(Event event);
     Event updateEvent(int id, Event eventDetails);
     void deleteEvent(int id);
-    List<Event> isEventToday(int teamId);
+    List<Event> eventsToday(int teamId);
 }

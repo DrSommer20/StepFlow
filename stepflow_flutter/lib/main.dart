@@ -65,26 +65,16 @@ class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
-  MyAppState createState() => MyAppState();
+  _MyAppState createState() => _MyAppState();
 }
 
-class MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> {
   bool _isLoggedIn = false;
 
   @override
   void initState() {
     super.initState();
     _checkToken();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'StepFlow',
-      theme: lightTheme,
-      themeMode: ThemeMode.system,
-      home: _isLoggedIn ? MenuFrame() : LoginScreen(onLoginSuccess: _checkToken),
-    );
   }
 
   Future<void> _checkToken() async {
@@ -107,7 +97,6 @@ class MyAppState extends State<MyApp> {
         Uri.parse('http://192.168.0.136:8080/api/users'),
         headers: {
           'Authorization': 'Bearer $token',
-
         },
       );
       if (userResponse.statusCode == 200) {
@@ -126,6 +115,7 @@ class MyAppState extends State<MyApp> {
         await prefs.setString('password', userData['password']);
         await prefs.setBool('active', userData['active']);
         await prefs.setStringList('teamIds', teamIds.map((id) => id.toString()).toList());
+        await prefs.setInt('currentTeamId', teamIds[0]);
         setState(() {
           _isLoggedIn = true;
         });
@@ -135,5 +125,23 @@ class MyAppState extends State<MyApp> {
     setState(() {
       _isLoggedIn = false;
     });
+  }
+
+  Future<void> _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+    setState(() {
+      _isLoggedIn = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'StepFlow',
+      theme: lightTheme,
+      themeMode: ThemeMode.system,
+      home: _isLoggedIn ? MenuFrame(onLogout: _logout) : LoginScreen(onLoginSuccess: _checkToken),
+    );
   }
 }
