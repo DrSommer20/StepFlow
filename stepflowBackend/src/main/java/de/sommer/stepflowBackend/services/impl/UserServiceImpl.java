@@ -95,4 +95,6 @@ public class UserServiceImpl implements UserService{
     public boolean isUserMemberOfTeam(User user, int teamId) {
         return user.getMemberships().stream().anyMatch(membership -> membership.getTeam().getId() == teamId);
     }
+
+    
 }

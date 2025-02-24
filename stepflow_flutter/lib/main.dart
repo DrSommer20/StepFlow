@@ -102,6 +102,7 @@ class _MyAppState extends State<MyApp> {
       if (userResponse.statusCode == 200) {
         final userData = jsonDecode(userResponse.body);
         final List<int> teamIds = List<int>.from(userData['teamIds']);
+        final List<int> teamAdmins = List<int>.from(userData['admins']);
         if (teamIds.isEmpty) {
           setState(() {
             _isLoggedIn = false;
@@ -116,6 +117,7 @@ class _MyAppState extends State<MyApp> {
         await prefs.setBool('active', userData['active']);
         await prefs.setStringList('teamIds', teamIds.map((id) => id.toString()).toList());
         await prefs.setInt('currentTeamId', teamIds[0]);
+        await prefs.setBool('admin', teamAdmins.contains(userData['userId']));
         setState(() {
           _isLoggedIn = true;
         });

@@ -24,16 +24,16 @@ public class Event {
     @Column(name = "id", nullable = false)
     private int id;
 
-    @Column(nullable = false) // Titel darf nicht null sein
+    @Column(nullable = false)
     private String title;
 
-    @Column(length = 500) // Beschreibung mit maximal 500 Zeichen
+    @Column(length = 500) 
     private String description;
 
-    @Column(name = "start_date", nullable = false) // Startdatum darf nicht null sein
+    @Column(name = "start_date", nullable = false) 
     private LocalDateTime start;
 
-    @Column(name = "end_date", nullable = false) // Enddatum darf nicht null sein
+    @Column(name = "end_date", nullable = false)
     private LocalDateTime end;
 
     private String location = "Test";
@@ -41,18 +41,17 @@ public class Event {
     @OneToMany(mappedBy = "event")
     private List<EventAttendee> eventAttendees = new ArrayList<>();
 
-    @Column(nullable = false) // Farbe darf nicht null sein
-    private String color = "#000000"; // Standardfarbe ist Schwarz
+    @Column(nullable = false)
+    private String color = "#000000";
 
+    @Column(nullable = false)
+    private boolean recurrent = false; 
 
-    @Column(nullable = false) // Rekurrent darf nicht null sein
-    private boolean recurrent = false; // Standardmäßig nicht rekurrent
-
-    @Column(name = "recurrence_rule") // Anführungszeichen hinzufügen!
+    @Column(name = "recurrence_rule") 
     private String recurrenceRule;
 
-    @Column(name = "is_all_day") // Anführungszeichen hinzufügen!
-    private boolean allDay = false;
+    @Column(name = "is_all_day") 
+    private boolean allDay;
 
     @ManyToOne
     @JoinColumn(name = "created_by", referencedColumnName = "user_id", nullable = false)

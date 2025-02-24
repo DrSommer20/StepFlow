@@ -28,6 +28,7 @@ class EventDTO {
   });
 
   factory EventDTO.fromJson(Map<String, dynamic> json) {
+    print(json);
     return EventDTO(
       id: json['id'],
       title: json['title'],

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:stepflow/menu_screens/events_new.dart';
+import 'package:stepflow/menu_screens/events.dart';
 import 'home.dart';
 import 'fines.dart';
 import 'carpool.dart';

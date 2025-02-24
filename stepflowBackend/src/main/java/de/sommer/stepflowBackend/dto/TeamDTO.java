@@ -34,16 +34,20 @@ public class TeamDTO {
     @JsonProperty("teamBanner")
     private byte[] teamBanner;
 
+    @JsonProperty("admins")
+    private int[] admins;
+
     public TeamDTO() {
     }
 
-    public TeamDTO(Team team) {
+    public TeamDTO(Team team, int[] admins) {
         this.id = team.getId();
         this.teamName = team.getTeamName();
         this.teamDescription = team.getTeamDescription();
         this.teamColor = team.getTeamColor();
         this.teamLogo = team.getTeamLogo();
         this.teamBanner = team.getTeamBanner();
+        this.admins = admins;
     }
 
     // Getters and setters
@@ -105,5 +109,15 @@ public class TeamDTO {
     @JsonProperty("teamBanner")
     public void setTeamBanner(byte[] teamBanner) {
         this.teamBanner = teamBanner;
+    }
+
+    @JsonProperty("admins")
+    public int[] getAdmins() {
+        return admins;
+    }
+
+    @JsonProperty("admins")
+    public void setAdmins(int[] admins) {
+        this.admins = admins;
     }
 }

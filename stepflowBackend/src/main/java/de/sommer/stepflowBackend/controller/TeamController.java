@@ -34,14 +34,14 @@ public class TeamController {
     @PostMapping("/create")
     public ResponseEntity<?> createTeam(@RequestBody Team team) {
         Team createdTeam = teamService.createTeam(team);
-        return ResponseEntity.ok(new TeamDTO(createdTeam));
+        return ResponseEntity.ok(new TeamDTO(createdTeam, teamService.getUserIdsofAdmin(createdTeam.getId())));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getTeamById(@PathVariable int id) {
         Optional<Team> team = teamService.getTeam(id);
         if (team.isPresent()) {
-            return ResponseEntity.ok(new TeamDTO(team.get()));
+            return ResponseEntity.ok(new TeamDTO(team.get(), teamService.getUserIdsofAdmin(team.get().getId())));
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -64,7 +64,7 @@ public class TeamController {
         if (code.isPresent() && code.get().getExpirationTime().isAfter(LocalDateTime.now())) {
             if (user.isPresent()) {
                 Team team = teamService.addUserToTeam(code.get().getTeam().getId(), user.get().getId());
-                return ResponseEntity.ok(new TeamDTO(team));
+                return ResponseEntity.ok(new TeamDTO(team, teamService.getUserIdsofAdmin(team.getId())));
             } else {
                 return ResponseEntity.notFound().build();
             }

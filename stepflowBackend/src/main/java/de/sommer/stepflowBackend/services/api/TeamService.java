@@ -12,5 +12,6 @@ public interface TeamService {
     Team addUserToTeam(int teamId, int userId);
     void removeUserFromTeam(int teamId, int userId);
     Team updateUserRoleinTeam(int teamId, int userId, String role);
-
+    int[] getUserIdsofAdmin(int teamId);
+    int[] getUserIdsofMember(int teamId);
 } 

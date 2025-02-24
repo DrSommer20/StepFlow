@@ -12,10 +12,11 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'package:http/http.dart' as http;
 
+import 'event_details.dart';
+
 class EventsNewScreen extends StatefulWidget {
   const EventsNewScreen({super.key});
   
-
   @override
   State<EventsNewScreen> createState() => _EventsNewScreenState();
 }
@@ -31,11 +32,12 @@ class _EventsNewScreenState extends State<EventsNewScreen> with AutomaticKeepAli
   int eventsToday = 0;
   String? _authToken; // Store the auth token
   int? _selectedTeamId; // Store the selected team ID
+  bool? _isUserAdmin; // Store the user role
 
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
-  bool _allDay = false;
+  bool? _allDay;
   DateTime _startDateTime = DateTime.now();
   DateTime _endDateTime = DateTime.now().add(const Duration(hours: 1));
   String? _selectedColor;
@@ -68,6 +70,7 @@ class _EventsNewScreenState extends State<EventsNewScreen> with AutomaticKeepAli
     final prefs = await SharedPreferences.getInstance();
     _authToken = prefs.getString('token');
     _selectedTeamId = prefs.getInt('currentTeamId');
+    _isUserAdmin = prefs.getBool('admin') ?? false;
     if (_authToken != null) {
       _loadEvents();
       _loadEventsToday();
@@ -89,9 +92,7 @@ class _EventsNewScreenState extends State<EventsNewScreen> with AutomaticKeepAli
         'Authorization': 'Bearer $_authToken',
         'Team': _selectedTeamId.toString(),
       },
-
     );
-
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
 
@@ -269,64 +270,64 @@ class _EventsNewScreenState extends State<EventsNewScreen> with AutomaticKeepAli
     
   }
 
- Widget _buildEventList() {
-  // 1. Get date range (2 years before and after today)
-  final dateRange = _getDateRange(startDate, endDate);
+  Widget _buildEventList() {
+    // 1. Get date range (2 years before and after today)
+    final dateRange = _getDateRange(startDate, endDate);
 
-  // 2. Group events by date
-  final eventsByDate = <DateTime, List<EventDTO>>{};
-  for (final event in events) {
-    final date = DateTime(event.start.year, event.start.month, event.start.day);
-    eventsByDate.putIfAbsent(date, () => []);
-    eventsByDate[date]!.add(event);
-  }
+    // 2. Group events by date
+    final eventsByDate = <DateTime, List<EventDTO>>{};
+    for (final event in events) {
+      final date = DateTime(event.start.year, event.start.month, event.start.day);
+      eventsByDate.putIfAbsent(date, () => []);
+      eventsByDate[date]!.add(event);
+    }
 
-  // 3. Build the list
-  final listView = ScrollablePositionedList.builder(
-    itemScrollController: _scrollController,
-    itemCount: dateRange.length,
-    itemBuilder: (context, index) {
-      final date = dateRange[index];
-      final eventsForDate = eventsByDate[date] ?? []; // Show empty list if no events
+    // 3. Build the list
+    final listView = ScrollablePositionedList.builder(
+      itemScrollController: _scrollController,
+      itemCount: dateRange.length,
+      itemBuilder: (context, index) {
+        final date = dateRange[index];
+        final eventsForDate = eventsByDate[date] ?? []; // Show empty list if no events
 
-      // Check if the month has changed
-      bool isNewMonth = index == 0 || date.month != dateRange[index - 1].month;
+        // Check if the month has changed
+        bool isNewMonth = index == 0 || date.month != dateRange[index - 1].month;
 
-      return Column(
-        key: index == _getDateIndex(_selectedDate) ? GlobalKey() : null, // Assign key to selected date item
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (isNewMonth)
+        return Column(
+          key: index == _getDateIndex(_selectedDate) ? GlobalKey() : null, // Assign key to selected date item
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (isNewMonth)
+              Padding(
+                padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0, bottom: 8.0),
+                child: Text(
+                  DateFormat.yMMMM('de').format(date),
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.blue),
+                ),
+              ),
+            const Divider(
+              color: Colors.grey,
+              indent: 16.0,
+              endIndent: 16.0,
+            ),
             Padding(
-              padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0, bottom: 8.0),
+              padding: const EdgeInsets.only(left: 18.0, right: 18.0),
               child: Text(
-                DateFormat.yMMMM('de').format(date),
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.blue),
+                '${date.day}. ${DateFormat.EEEE('de').format(date)}',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
-          const Divider(
-            color: Colors.grey,
-            indent: 16.0,
-            endIndent: 16.0,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 18.0, right: 18.0),
-            child: Text(
-              '${date.day}. ${DateFormat.EEEE('de').format(date)}',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ),
-          // Display event boxes (or an empty message)
-          if (eventsForDate.isEmpty)
-            _buildNoEventsMessage()
-          else
-            for (final event in eventsForDate) _buildEventBox(event),
-        ],
-      );
-    },
-  );
-  return listView;
-}
+            // Display event boxes (or an empty message)
+            if (eventsForDate.isEmpty)
+              _buildNoEventsMessage()
+            else
+              for (final event in eventsForDate) _buildEventBox(event),
+          ],
+        );
+      },
+    );
+    return listView;
+  }
 
   List<DateTime> _getDateRange(DateTime start, DateTime end) {
     List<DateTime> range = [];
@@ -347,43 +348,52 @@ class _EventsNewScreenState extends State<EventsNewScreen> with AutomaticKeepAli
   }
 
   Widget _buildEventBox(EventDTO event) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Container(
-        width: double.infinity, // Use full screen width
-        decoration: BoxDecoration(
-          color: Colors.blue, // ... (Get color from event.color)
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween, // Align title and time
-              children: [
-                Expanded( // Expand title to take available space
-                  child: Text(
-                    event.title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EventDetailsScreen(event: event, userRole: _isUserAdmin ?? false,),
+          ),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: Container(
+          width: double.infinity, // Use full screen width
+          decoration: BoxDecoration(
+            color: Colors.blue, // ... (Get color from event.color)
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween, // Align title and time
+                children: [
+                  Expanded( // Expand title to take available space
+                    child: Text(
+                      event.title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                ),
-                Icon(Ionicons.chevron_forward_outline, color: Colors.white), 
-              ],
-            ),
-            Text(
-                  event.allDay!
-                      ? 'Ganztägig' // German for All Day
-                      : '${DateFormat.jm('de').format(event.start)} - ${DateFormat.jm('de').format(event.end)}', // German time format
-                  style: const TextStyle(color: Color.fromARGB(255, 204, 210, 219), fontSize: 14),
-                ),
-            const SizedBox(height: 8),
-            // ... (Add other event details as needed)
-          ],
+                  Icon(Ionicons.chevron_forward_outline, color: Colors.white), 
+                ],
+              ),
+              Text(
+                event.allDay!
+                    ? 'Ganztägig'
+                    : '${DateFormat.jm('de').format(event.start)} - ${DateFormat.jm('de').format(event.end)}', // German time format
+                style: const TextStyle(color: Color.fromARGB(255, 204, 210, 219), fontSize: 14),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
         ),
       ),
     );
@@ -673,3 +683,44 @@ class _EventsNewScreenState extends State<EventsNewScreen> with AutomaticKeepAli
 
   
 }
+
+// return Padding(
+//       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+//       child: Container(
+//         width: double.infinity, // Use full screen width
+//         decoration: BoxDecoration(
+//           color: Colors.blue, // ... (Get color from event.color)
+//           borderRadius: BorderRadius.circular(8.0),
+//         ),
+//         padding: const EdgeInsets.all(16.0),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             Row(
+//               mainAxisAlignment: MainAxisAlignment.spaceBetween, // Align title and time
+//               children: [
+//                 Expanded( // Expand title to take available space
+//                   child: Text(
+//                     event.title,
+//                     style: const TextStyle(
+//                       color: Colors.white,
+//                       fontSize: 20,
+//                       fontWeight: FontWeight.bold,
+//                     ),
+//                   ),
+//                 ),
+//                 Icon(Ionicons.chevron_forward_outline, color: Colors.white), 
+//               ],
+//             ),
+//             Text(
+//                   event.allDay!
+//                       ? 'Ganztägig'
+//                       : '${DateFormat.jm('de').format(event.start)} - ${DateFormat.jm('de').format(event.end)}', // German time format
+//                   style: const TextStyle(color: Color.fromARGB(255, 204, 210, 219), fontSize: 14),
+//                 ),
+//             const SizedBox(height: 8),
+            
+//           ],
+//         ),
+//       ),
+//     );

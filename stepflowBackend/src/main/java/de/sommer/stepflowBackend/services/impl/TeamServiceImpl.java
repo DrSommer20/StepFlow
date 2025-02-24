@@ -9,6 +9,7 @@ import de.sommer.stepflowBackend.models.Team;
 import de.sommer.stepflowBackend.models.TeamMembership;
 import de.sommer.stepflowBackend.models.User;
 import de.sommer.stepflowBackend.repo.TeamRepository;
+import de.sommer.stepflowBackend.repo.UserRepository;
 import de.sommer.stepflowBackend.services.api.TeamService;
 import de.sommer.stepflowBackend.services.api.UserService;
 
@@ -17,6 +18,9 @@ public class TeamServiceImpl implements TeamService{
 
     @Autowired
     TeamRepository teamRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     @Autowired 
     UserService userService;
@@ -87,6 +91,22 @@ public class TeamServiceImpl implements TeamService{
         }
     }
 
+    @Override
+    public int[] getUserIdsofAdmin(int teamId) {
+        return userRepository.findAll().stream()
+                .filter(user -> user.getMemberships().stream()
+                        .anyMatch(membership -> membership.getTeam().getId() == teamId && membership.getRole().equals("admin")))
+                .mapToInt(user -> user.getId())
+                .toArray();
+    }
 
+    @Override
+    public int[] getUserIdsofMember(int teamId) {
+        return userRepository.findAll().stream()
+                .filter(user -> user.getMemberships().stream()
+                        .anyMatch(membership -> membership.getTeam().getId() == teamId))
+                .mapToInt(user -> user.getId())
+                .toArray();
+    }
     
 }

@@ -20,4 +20,5 @@ public interface UserService extends UserDetailsService {
     boolean isUserAdminOfTeam(User user, int teamId);
     List<Team> getTeamsOfUser(int userId);
     boolean isUserMemberOfTeam(User user, int teamId);
+    
 }
